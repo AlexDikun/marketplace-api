@@ -1,0 +1,11 @@
+server:
+  port: ${PORT:8086}
+
+spring:
+  application:
+    name: marketplace-api
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
