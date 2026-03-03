@@ -1,4 +1,4 @@
-package io.github.alexdikun.marketplace.config.repository;
+package io.github.alexdikun.marketplace.repository;
 
 import org.springframework.stereotype.Repository;
 
