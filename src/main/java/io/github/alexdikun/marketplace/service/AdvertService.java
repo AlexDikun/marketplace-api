@@ -1,5 +1,7 @@
 package io.github.alexdikun.marketplace.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
@@ -17,29 +19,29 @@ public class AdvertService {
         System.out.println("Cоздаем объявление!");
 
         return AdvertResponse.builder()
-            .id(14L)
-            .name("Mark Tven")
-            .cost(22.5)
-            .address("Sevastopol, 135")
-            .phone("88005553535")
-            .description("nice book")
+            .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
+            .name(advertRequest.getName())
+            .cost(advertRequest.getCost())
+            .address(advertRequest.getAddress())
+            .phone(advertRequest.getPhone())
+            .description(advertRequest.getDescription())
             .build();
     }
 
-    public AdvertResponse getAdvertisementById(Long id) {
+    public AdvertResponse getAdvertById(Long id) {
         System.out.println("Получаем объявление по id: " + id);
 
-        return AdvertResponse.builder()
+        return AdvertResponse.builder()       
             .id(id)
-            .name("Mark Tven")
-            .cost(22.5)
-            .address("Sevastopol, 135")
-            .phone("88005553535")
-            .description("nice book")
+            .name("Имя лота")
+            .cost(0.0)
+            .address("Адрес лота")
+            .phone("Номер телефона продавца")
+            .description("Описание лота")
             .build();
     }
 
-    public AdvertResponse updateAdvertisementById(Long id, AdvertRequest advertRequest) {
+    public AdvertResponse updateAdvertById(Long id, AdvertRequest advertRequest) {
         System.out.println("Изменение объявления с id: " + id);
 
         return AdvertResponse.builder()
