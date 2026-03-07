@@ -15,6 +15,7 @@ public class CommentService {
         return CommentResponse.builder()
             .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
             .content(commentRequest.getContent())
+            .parentId(commentRequest.getParentId())
             .userId(commentRequest.getUserId())
             .advertId(advertId)
             .build();
@@ -26,6 +27,7 @@ public class CommentService {
         return CommentResponse.builder()
             .id(id)
             .content("Текст комментария")
+            .parentId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
             .userId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
             .advertId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
             .build();

@@ -8,6 +8,7 @@ import lombok.Data;
 public class CommentResponse {
     private Long id;
     private String content;
+    private Long parentId;
     private Long userId;
     private Long advertId;
 }
