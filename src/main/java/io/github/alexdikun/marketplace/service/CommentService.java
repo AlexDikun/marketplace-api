@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import io.github.alexdikun.marketplace.request.CommentRequest;
-import io.github.alexdikun.marketplace.response.CategoryResponse;
 import io.github.alexdikun.marketplace.response.CommentResponse;
 
 @Service
