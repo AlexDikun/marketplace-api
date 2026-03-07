@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class CategoryRequest {
-    String name;
-    Long parentId;
+    private String name;
+    private Long parentId;
 }
