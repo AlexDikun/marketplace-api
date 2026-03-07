@@ -48,6 +48,7 @@ public class UserService {
         return UserResponse.builder()
             .id(id)
             .name(userRequest.getName())
+            .login(userRequest.getLogin())
             .role(userRequest.getRole())
             .build();
     }
