@@ -11,7 +11,7 @@ import io.github.alexdikun.marketplace.response.UserResponse;
 @Service
 public class UserService {
     
-    public List<UserResponse> getAllUsers(Long advertId) {
+    public List<UserResponse> getAllUsers() {
         System.out.println("Получаем список всех пользователей!");
 
         return List.of(
