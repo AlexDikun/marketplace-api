@@ -1,5 +1,6 @@
 package io.github.alexdikun.marketplace.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -28,6 +29,15 @@ public class CategoryService {
             .name("Название категории")
             .parentId(null)
             .build();
+    }
+
+    public List<CategoryResponse> getAllCategories() {
+        System.out.println("Получаем список всех категорий");
+
+        return List.of(
+            CategoryResponse.builder().id(1L).name("Название категории 1").parentId(null).build(),
+            CategoryResponse.builder().id(2L).name("Название категории 2").parentId(null).build()
+        );
     }
 
     public CategoryResponse updateCategoryByid(Long id, CategoryRequest request) {
