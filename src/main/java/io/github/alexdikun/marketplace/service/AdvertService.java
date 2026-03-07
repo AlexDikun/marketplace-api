@@ -56,7 +56,7 @@ public class AdvertService {
 
     public String deleteAdvertById(Long id) {
         System.out.println("Удаляем объявление с id: " + id);
-        return "Объявление с id:" + id + "удалено!";
+        return "Объявление с id: " + id + " удалено!";
     }
 
 }

@@ -44,6 +44,6 @@ public class CommentService {
 
     public String deleteCommentById(Long id) {
         System.out.println("Удаляем комментарий с id: " + id);
-        return "Комментарий с id:" + id + "удален!";
+        return "Комментарий с id: " + id + " удален!";
     }
 }

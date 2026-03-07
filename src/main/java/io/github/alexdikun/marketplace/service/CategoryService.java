@@ -52,7 +52,7 @@ public class CategoryService {
 
     public String deleteCategoryById(Long id) {
         System.out.println("Удаляем категорию с id: " + id);
-        return "Категория с id:" + id + "удалена!";
+        return "Категория с id: " + id + " удалена!";
     }
 
     
