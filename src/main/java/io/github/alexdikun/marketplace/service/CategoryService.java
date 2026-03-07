@@ -40,7 +40,7 @@ public class CategoryService {
         );
     }
 
-    public CategoryResponse updateCategoryByid(Long id, CategoryRequest request) {
+    public CategoryResponse updateCategoryById(Long id, CategoryRequest request) {
         System.out.println("Изменение категории с id: " + id);
 
         return CategoryResponse.builder()
