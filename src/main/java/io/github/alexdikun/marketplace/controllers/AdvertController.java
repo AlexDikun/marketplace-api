@@ -4,14 +4,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alexdikun.marketplace.request.AdvertRequest;
+import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
+import io.github.alexdikun.marketplace.response.CommentResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
+import io.github.alexdikun.marketplace.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class AdvertController {
 
     private final AdvertService advertService;
+    private final CommentService commentService;
 
     @PostMapping
     @Operation(summary = "Создание объявления")
@@ -41,8 +47,8 @@ public class AdvertController {
     })
     public ResponseEntity<AdvertResponse> createAdvert(
         @Parameter(description = "Модель для создания данных")
-        @RequestBody AdvertRequest request) {
-        return new ResponseEntity<>(advertService.createAdvert(request), HttpStatus.CREATED);
+        @RequestBody AdvertRequest advertRequest) {
+        return new ResponseEntity<>(advertService.createAdvert(advertRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("{id}")
@@ -63,8 +69,8 @@ public class AdvertController {
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<AdvertResponse> updateAdvert(@PathVariable Long id, @RequestBody AdvertRequest request) {
-        return new ResponseEntity<>(advertService.updateAdvertById(id, request), HttpStatus.OK);
+    public ResponseEntity<AdvertResponse> updateAdvert(@PathVariable Long id, @RequestBody AdvertRequest advertRequest) {
+        return new ResponseEntity<>(advertService.updateAdvertById(id, advertRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
@@ -77,5 +83,28 @@ public class AdvertController {
     public ResponseEntity<String> deleteAdvert(@PathVariable Long id) {
         return new ResponseEntity<>(advertService.deleteAdvertById(id), HttpStatus.OK);
     }
-    
+
+    @PostMapping("{id}/comments")
+    @Operation(summary = "Создает комментарий по модели в объявлении")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Оставлен комментарий"),
+        @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    public ResponseEntity<CommentResponse> leaveCommentOnAdvert(@PathVariable Long id, 
+        @Parameter(description = "Модель для создания данных") @RequestBody CommentRequest commentRequest
+    ) {
+        return new ResponseEntity<>(commentService.createComment(id, commentRequest), HttpStatus.CREATED);
+    }
+
+    @GetMapping("{id}/comments")
+    @Operation(summary = "Получить список комментариев объявления")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Список комментариев прочитан"),
+        @ApiResponse(responseCode = "404", description = "Никакие комментарии не найдены"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    public ResponseEntity<List<CommentResponse>> getAllCategories(@PathVariable Long id) {
+        return new ResponseEntity<>(commentService.getAllComments(id), HttpStatus.OK);
+    }
 }
