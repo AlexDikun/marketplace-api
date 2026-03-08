@@ -5,10 +5,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.request.CommentRequest;
+import io.github.alexdikun.marketplace.request.ImageRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import io.github.alexdikun.marketplace.response.CommentResponse;
+import io.github.alexdikun.marketplace.response.ImageResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
+import io.github.alexdikun.marketplace.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,6 +40,7 @@ public class AdvertController {
 
     private final AdvertService advertService;
     private final CommentService commentService;
+    private final ImageService imageService;
 
     @PostMapping
     @Operation(summary = "Создание объявления")
@@ -106,5 +110,18 @@ public class AdvertController {
     })
     public ResponseEntity<List<CommentResponse>> getAllCategories(@PathVariable Long id) {
         return new ResponseEntity<>(commentService.getAllComments(id), HttpStatus.OK);
+    }
+
+    @PostMapping("{id}/images")
+    @Operation(summary = "Создает изображение по модели в объявлении")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Изображение добавлено"),
+        @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    public ResponseEntity<ImageResponse> addImageOnAdvert(@PathVariable Long id, 
+        @Parameter(description = "Модель для создания данных") @RequestBody ImageRequest imageRequest
+    ) {
+        return new ResponseEntity<>(imageService.createImage(id, imageRequest), HttpStatus.CREATED);
     }
 }
