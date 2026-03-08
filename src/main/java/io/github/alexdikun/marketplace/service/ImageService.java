@@ -2,9 +2,12 @@ package io.github.alexdikun.marketplace.service;
 
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
 import io.github.alexdikun.marketplace.request.ImageRequest;
 import io.github.alexdikun.marketplace.response.ImageResponse;
 
+@Service
 public class ImageService {
 
     public ImageResponse createImage(Long advertId, ImageRequest imageRequest) {
