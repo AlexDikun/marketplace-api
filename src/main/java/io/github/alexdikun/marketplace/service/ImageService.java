@@ -17,7 +17,7 @@ public class ImageService {
             .build();
     }
 
-    public ImageResponse getImage(Long id) {
+    public ImageResponse getImageById(Long id) {
         System.out.println("Получаем изображение по id: " + id);
 
         return ImageResponse.builder()
@@ -27,7 +27,7 @@ public class ImageService {
             .build();
     }
 
-    public ImageResponse getImage(Long id, ImageRequest imageRequest) {
+    public ImageResponse updateImageById(Long id, ImageRequest imageRequest) {
         System.out.println("Заменяем изображение в объявлении по id: " + id);
 
         return ImageResponse.builder()
