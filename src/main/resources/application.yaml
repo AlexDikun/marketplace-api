@@ -5,7 +5,7 @@ spring:
   application:
     name: marketplace-api
   datasource:
-    url: jdbc:postgresql://localhost:5432/marketplace
+    url: jdbc:postgresql://localhost:5432/marketplace_db
     username: student
     password: password
     driver-class-name: org.postgresql.Driver
