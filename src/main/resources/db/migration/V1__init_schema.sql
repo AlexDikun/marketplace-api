@@ -1,6 +1,6 @@
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(16) NOT NULL
+    name VARCHAR(16) UNIQUE NOT NULL
 );
 
 CREATE TABLE users
