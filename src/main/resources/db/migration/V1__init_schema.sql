@@ -22,7 +22,7 @@ CREATE TABLE categories (
 CREATE TABLE adverts (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
-    cost NUMERIC(10, 2) CHECK (cost >= 0),
+    cost NUMERIC(10, 2) NOT NULL CHECK (cost >= 0),
     description VARCHAR(500),
     address VARCHAR(100) NOT NULL,
     phone VARCHAR(25) NOT NULL,
