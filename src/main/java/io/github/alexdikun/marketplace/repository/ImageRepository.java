@@ -3,7 +3,7 @@ package io.github.alexdikun.marketplace.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import io.github.alexdikun.marketplace.entities.CategoryEntity;
+import io.github.alexdikun.marketplace.entities.ImageEntity;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {}
+public interface ImageRepository extends JpaRepository<ImageEntity, Long> {}
