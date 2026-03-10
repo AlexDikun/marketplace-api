@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdvertService {
 
-    private final AdvertRepository advertRepository;
+    // private final AdvertRepository advertRepository;
 
     public AdvertResponse createAdvert(AdvertRequest advertRequest) {
         System.out.println("Cоздаем объявление!");
