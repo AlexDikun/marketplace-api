@@ -7,6 +7,5 @@ import lombok.Data;
 @Builder
 public class ImageResponse {
     private Long id;
-    private String content;
-    private Long advertId;
+    private String url;
 }

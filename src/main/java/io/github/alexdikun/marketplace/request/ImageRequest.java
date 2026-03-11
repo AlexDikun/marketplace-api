@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ImageRequest {
-    private String content;
+    private String url;
     private Long advertId;
 }
