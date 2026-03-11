@@ -1,5 +1,6 @@
 package io.github.alexdikun.marketplace.service;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class AdvertService {
 
         return AdvertResponse.builder()
             .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
-            .name(advertRequest.getName())
+            .title(advertRequest.getTitle())
             .cost(advertRequest.getCost())
             .address(advertRequest.getAddress())
             .phone(advertRequest.getPhone())
@@ -33,8 +34,8 @@ public class AdvertService {
 
         return AdvertResponse.builder()       
             .id(id)
-            .name("Имя лота")
-            .cost(0.0)
+            .title("Имя лота")
+            .cost(new BigDecimal("0.00"))
             .address("Адрес лота")
             .phone("Номер телефона продавца")
             .description("Описание лота")
@@ -46,7 +47,7 @@ public class AdvertService {
 
         return AdvertResponse.builder()
             .id(id)
-            .name(advertRequest.getName())
+            .title(advertRequest.getTitle())
             .cost(advertRequest.getCost())
             .address(advertRequest.getAddress())
             .phone(advertRequest.getPhone())
