@@ -4,12 +4,18 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import io.github.alexdikun.marketplace.entities.UserEntity;
 import io.github.alexdikun.marketplace.enums.Role;
+import io.github.alexdikun.marketplace.mapper.UserMapper;
 import io.github.alexdikun.marketplace.request.UserRequest;
 import io.github.alexdikun.marketplace.response.UserResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
+
+    private final UserMapper userMapper;
     
     public List<UserResponse> getAllUsers() {
         System.out.println("Получаем список всех пользователей!");
@@ -45,12 +51,8 @@ public class UserService {
     public UserResponse updateUserById(Long id, UserRequest userRequest) {
         System.out.println("Обновление пользователя с id: " + id);
 
-        return UserResponse.builder()
-            .id(id)
-            .name(userRequest.getName())
-            .login(userRequest.getLogin())
-            .role(userRequest.getRole())
-            .build();
+        UserEntity userEntity = userMapper.toUserEntity(userRequest);
+        return userMapper.toUserResponse(userEntity);
     }
 
     public String deleteUserById(Long id) {
