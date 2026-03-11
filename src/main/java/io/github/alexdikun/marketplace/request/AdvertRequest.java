@@ -1,15 +1,17 @@
 package io.github.alexdikun.marketplace.request;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import lombok.Data;
 
 @Data
 public class AdvertRequest {
-    private String name;
-    private Double cost;
+    private String title;
+    private BigDecimal cost;
     private String address;
     private String phone;
     private String description;
-    private LocalDateTime createDateTime;
+
+    private Long userId;
+    private Long categoryId;
 }
