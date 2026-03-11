@@ -4,20 +4,23 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import io.github.alexdikun.marketplace.entities.ImageEntity;
+import io.github.alexdikun.marketplace.mapper.ImageMapper;
 import io.github.alexdikun.marketplace.request.ImageRequest;
 import io.github.alexdikun.marketplace.response.ImageResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ImageService {
+
+    private final ImageMapper imageMapper;
 
     public ImageResponse createImage(Long advertId, ImageRequest imageRequest) {
         System.out.println("Добавляем изображение к объявлению!");
 
-        return ImageResponse.builder()
-            .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
-            .content(imageRequest.getContent())
-            .advertId(imageRequest.getAdvertId())
-            .build();
+        ImageEntity imageEntity = imageMapper.toImageEntity(imageRequest);
+        return imageMapper.toImageResponse(imageEntity);
     }
 
     public ImageResponse getImageById(Long id) {
@@ -25,8 +28,7 @@ public class ImageService {
 
         return ImageResponse.builder()
             .id(id)
-            .content("матрица значений, преобразующиеся в пиксели")
-            .advertId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
+            .url("file path")
             .build();
     }
 
@@ -35,8 +37,7 @@ public class ImageService {
 
         return ImageResponse.builder()
             .id(id)
-            .content(imageRequest.getContent())
-            .advertId(imageRequest.getAdvertId())
+            .url(imageRequest.getUrl())
             .build();
     }
 
