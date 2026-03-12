@@ -1,24 +1,26 @@
 package io.github.alexdikun.marketplace.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import io.github.alexdikun.marketplace.entities.CategoryEntity;
+import io.github.alexdikun.marketplace.mapper.CategoryMapper;
 import io.github.alexdikun.marketplace.request.CategoryRequest;
 import io.github.alexdikun.marketplace.response.CategoryResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
+
+    private final CategoryMapper categoryMapper;
     
     public CategoryResponse createCategory(CategoryRequest request) {
         System.out.println("Cоздаем категорию!");
 
-        return CategoryResponse.builder()
-            .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
-            .name(request.getName())
-            .parentId(request.getParentId())
-            .build();
+        CategoryEntity categoryEntity = categoryMapper.toCategoryEntity(request);
+        return categoryMapper.toCategoryResponse(categoryEntity);
     }
 
     public CategoryResponse getCategoryById(Long id) {
@@ -42,12 +44,10 @@ public class CategoryService {
 
     public CategoryResponse updateCategoryById(Long id, CategoryRequest request) {
         System.out.println("Изменение категории с id: " + id);
-
-        return CategoryResponse.builder()
-            .id(id)
-            .name(request.getName())
-            .parentId(request.getParentId()) 
-            .build();
+        
+        CategoryEntity categoryEntity = categoryMapper.toCategoryEntity(request);
+        CategoryEntity parentCategory = null;
+        return categoryMapper.toCategoryResponse(categoryEntity);
     }
 
     public String deleteCategoryById(Long id) {
