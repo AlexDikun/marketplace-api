@@ -4,22 +4,23 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
+import io.github.alexdikun.marketplace.entities.CommentEntity;
+import io.github.alexdikun.marketplace.mapper.CommentMapper;
 import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.response.CommentResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
+
+    private final CommentMapper commentMapper;
 
     public CommentResponse createComment(Long advertId, CommentRequest commentRequest) {
         System.out.println("Cоздаем комментарий к объявлению!");
 
-        return CommentResponse.builder()
-            .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
-            .content(commentRequest.getContent())
-            .parentId(commentRequest.getParentId())
-            .userId(commentRequest.getUserId())
-            .advertId(advertId)
-            .build();
+        CommentEntity commentEntity = commentMapper.toCommentEntity(commentRequest);
+        return commentMapper.toCommentResponse(commentEntity);
     }
 
     public CommentResponse getCommentById(Long id) {
@@ -59,12 +60,8 @@ public class CommentService {
     public CommentResponse updateCommentById(Long id, CommentRequest commentRequest) {
         System.out.println("Изменение комментария с id: " + id);
 
-        return CommentResponse.builder()
-            .id(id)
-            .content(commentRequest.getContent())
-            .userId(commentRequest.getUserId())
-            .advertId(commentRequest.getAdvertId())
-            .build();
+        CommentEntity commentEntity = commentMapper.toCommentEntity(commentRequest);
+        return commentMapper.toCommentResponse(commentEntity);
     }
 
     public String deleteCommentById(Long id) {
