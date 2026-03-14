@@ -53,12 +53,12 @@ public class CommentController {
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление комментария по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Комментарий удален"),
+        @ApiResponse(responseCode = "204", description = "Комментарий удален"),
         @ApiResponse(responseCode = "404", description = "Комментарий не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<String> deleteComment(@PathVariable Long id) {
-        return new ResponseEntity<>(commentService.deleteCommentById(id), HttpStatus.OK);
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
 }

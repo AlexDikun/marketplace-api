@@ -80,7 +80,7 @@ public class CategoryController {
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление категории по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Категория удалена"),
+        @ApiResponse(responseCode = "204", description = "Категория удалена"),
         @ApiResponse(responseCode = "404", description = "Категория не найдена"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })

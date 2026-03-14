@@ -68,7 +68,7 @@ public class UserController {
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление пользователя по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Пользователь удален"),
+        @ApiResponse(responseCode = "204", description = "Пользователь удален"),
         @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })

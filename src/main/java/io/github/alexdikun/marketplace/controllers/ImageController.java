@@ -52,11 +52,11 @@ public class ImageController {
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление изображения по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Изображение удалено"),
+        @ApiResponse(responseCode = "204", description = "Изображение удалено"),
         @ApiResponse(responseCode = "404", description = "Изображение не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<String> deleteImage(@PathVariable Long id) {
-        return new ResponseEntity<>(imageService.deleteImageById(id), HttpStatus.OK);
+        return new ResponseEntity<>(imageService.deleteImageById(id), HttpStatus.NO_CONTENT);
     }
 }
