@@ -84,8 +84,8 @@ public class CategoryController {
         @ApiResponse(responseCode = "404", description = "Категория не найдена"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
-        return new ResponseEntity<>(categoryService.deleteCategoryById(id), HttpStatus.OK);
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
     
 }

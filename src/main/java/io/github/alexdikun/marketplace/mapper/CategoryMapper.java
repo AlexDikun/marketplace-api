@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import io.github.alexdikun.marketplace.entities.CategoryEntity;
 import io.github.alexdikun.marketplace.request.CategoryRequest;
@@ -18,6 +19,9 @@ public interface CategoryMapper {
 
     @Mapping(target = "parentId", source = "parentCategory.id")
     CategoryResponse toCategoryResponse(CategoryEntity categoryEntity);
+
+    @Mapping(target = "parentCategory", ignore = true)
+    void updateCategoryFromDto(CategoryRequest categoryRequest, @MappingTarget CategoryEntity categoryEntity);
 
     List<CategoryResponse> toCategoryResponseList(List<CategoryEntity> entities);
 }
