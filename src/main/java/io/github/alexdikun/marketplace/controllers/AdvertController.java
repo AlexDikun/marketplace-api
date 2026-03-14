@@ -1,6 +1,7 @@
 package io.github.alexdikun.marketplace.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alexdikun.marketplace.request.AdvertRequest;
@@ -53,6 +54,19 @@ public class AdvertController {
         @Parameter(description = "Модель для создания данных")
         @RequestBody AdvertRequest advertRequest) {
         return new ResponseEntity<>(advertService.createAdvert(advertRequest), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Получить список интересующих объявлений по поиску")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Запрос выполнен успешно"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    public ResponseEntity<List<AdvertResponse>> searchAdverts(
+        @Parameter(description = "Текст запроса с клавиатуры")
+        @RequestParam String query
+    ) {
+        return new ResponseEntity<>(advertService.searchAdverts(query), HttpStatus.OK);
     }
 
     @GetMapping("{id}")

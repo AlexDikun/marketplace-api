@@ -1,5 +1,7 @@
 package io.github.alexdikun.marketplace.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,13 @@ public class AdvertService {
         AdvertEntity savedAdvert = advertRepository.save(advert);
 
         return advertMapper.toAdvertResponse(savedAdvert);
+    }
+
+    public List<AdvertResponse> searchAdverts(String query) {
+        System.out.println("Получаем список объявлений по поисковому запросу!");
+
+        List<AdvertEntity> adverts = advertRepository.search(query);
+        return advertMapper.toListAdvertResponse(adverts);
     }
 
     public AdvertResponse getAdvertById(Long id) {
