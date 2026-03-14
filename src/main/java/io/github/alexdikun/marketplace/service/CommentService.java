@@ -33,7 +33,7 @@ public class CommentService {
         UserEntity author = userRepository.findById(commentRequest.getUserId())
             .orElseThrow(() -> new RuntimeException("Автор комментария не найден"));
         
-        AdvertEntity advert = advertRepository.findById(commentRequest.getAdvertId())
+        AdvertEntity advert = advertRepository.findById(advertId)
                 .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
 
         if (commentRequest.getParentId() != null) {
@@ -75,19 +75,6 @@ public class CommentService {
             .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
 
         commentMapper.updateCommentFromDto(commentRequest, commentEntity);
-
-        if (commentRequest.getUserId() != null) {
-            UserEntity author = userRepository.findById(commentRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("Автор комментария не найден"));
-
-            commentEntity.setUser(author);
-        }
-        if (commentRequest.getAdvertId() != null) {
-            AdvertEntity advert = advertRepository.findById(commentRequest.getAdvertId())
-                    .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
-
-            commentEntity.setAdvert(advert);
-        }
 
         if (commentRequest.getParentId() != null && commentRequest.getParentId().equals(id)) {
             throw new RuntimeException("Комментарий не может быть родителем самого себя");
