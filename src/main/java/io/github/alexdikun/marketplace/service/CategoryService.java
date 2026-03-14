@@ -59,6 +59,12 @@ public class CategoryService {
         CategoryEntity categoryEntity = categoryRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Категория не найдена"));
 
+        if (categoryRequest.getName() != null &&
+            categoryRepository.existsByNameAndIdNot(categoryRequest.getName(), id)) {
+
+            throw new RuntimeException("Такое название категории уже существует!");
+        }
+
         if (categoryRequest.getParentId() != null && categoryRequest.getParentId().equals(id)) {
             throw new RuntimeException("Категория не может быть родителем самой себя");
         }
