@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 import io.github.alexdikun.marketplace.entities.UserEntity;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> {}
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+    boolean existsByLoginAndIdNot(String login, Long id);
+}

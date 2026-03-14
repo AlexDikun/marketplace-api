@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 import io.github.alexdikun.marketplace.entities.CategoryEntity;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {}
+public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
+    boolean existsByNameAndIdNot(String name, Long id);
+}
