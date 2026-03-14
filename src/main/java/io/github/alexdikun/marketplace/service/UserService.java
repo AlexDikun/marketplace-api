@@ -3,10 +3,11 @@ package io.github.alexdikun.marketplace.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.github.alexdikun.marketplace.entities.UserEntity;
-import io.github.alexdikun.marketplace.enums.Role;
 import io.github.alexdikun.marketplace.mapper.UserMapper;
+import io.github.alexdikun.marketplace.repository.UserRepository;
 import io.github.alexdikun.marketplace.request.UserRequest;
 import io.github.alexdikun.marketplace.response.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,48 +16,49 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     
     public List<UserResponse> getAllUsers() {
         System.out.println("Получаем список всех пользователей!");
 
-        return List.of(
-            UserResponse.builder()
-            .id(1L)
-            .name("FakeName")
-            .login("ADMIN")
-            .role(Role.ROLE_ADMIN)
-            .build(),
-
-            UserResponse.builder()
-            .id(2L)
-            .name("FakeName")
-            .login("factoryBot")
-            .role(Role.ROLE_USER)
-            .build()
-        );
+        List<UserEntity> allUsers = userRepository.findAll();
+        return userMapper.toListUserResponse(allUsers);
     } 
     
     public UserResponse getUserById(Long id) {
         System.out.println("Получаем пользователя по id: " + id);
 
-        return UserResponse.builder()
-            .id(id)
-            .name("Чье-то имя")
-            .login("Чей-то логин")
-            .role(Role.ROLE_USER)
-            .build();
-    }
+        UserEntity userEntity = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-    public UserResponse updateUserById(Long id, UserRequest userRequest) {
-        System.out.println("Обновление пользователя с id: " + id);
-
-        UserEntity userEntity = userMapper.toUserEntity(userRequest);
         return userMapper.toUserResponse(userEntity);
     }
 
-    public String deleteUserById(Long id) {
+    @Transactional
+    public UserResponse updateUserById(Long id, UserRequest userRequest) {
+        System.out.println("Обновление пользователя с id: " + id);
+
+        UserEntity userEntity = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        if (userRequest.getLogin() != null &&
+            userRepository.existsByLoginAndIdNot(userRequest.getLogin(), id)) {
+
+            throw new RuntimeException("Такой логин уже существует!");
+        }
+
+        userMapper.updateUserFromDto(userRequest, userEntity);
+        return userMapper.toUserResponse(userEntity);
+    }
+
+    @Transactional
+    public void deleteUserById(Long id) {
         System.out.println("Удаляем пользователя с id: " + id);
-        return "Пользователь с id: " + id + " удален!";
+
+        UserEntity userEntity = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        userRepository.delete(userEntity);
     }
 }
