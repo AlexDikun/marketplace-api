@@ -80,12 +80,12 @@ public class AdvertController {
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление объявления по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Объявление удалено"),
+        @ApiResponse(responseCode = "204", description = "Объявление удалено"),
         @ApiResponse(responseCode = "404", description = "Объявление не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<String> deleteAdvert(@PathVariable Long id) {
-        return new ResponseEntity<>(advertService.deleteAdvertById(id), HttpStatus.OK);
+    public ResponseEntity<Void> deleteAdvert(@PathVariable Long id) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("{id}/comments")

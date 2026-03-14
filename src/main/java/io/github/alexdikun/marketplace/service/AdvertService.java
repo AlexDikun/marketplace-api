@@ -1,11 +1,11 @@
 package io.github.alexdikun.marketplace.service;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
+import io.github.alexdikun.marketplace.entities.CategoryEntity;
+import io.github.alexdikun.marketplace.entities.UserEntity;
 import io.github.alexdikun.marketplace.mapper.AdvertMapper;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.CategoryRepository;
@@ -18,41 +18,59 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdvertService {
 
-    // private final AdvertRepository advertRepository;
-    // private final UserRepository userRepository;
-    // private final CategoryRepository categoryRepository;
+    private final AdvertRepository advertRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final AdvertMapper advertMapper;
 
+    @Transactional
     public AdvertResponse createAdvert(AdvertRequest advertRequest) {
         System.out.println("Cоздаем объявление!");
 
         AdvertEntity advert = advertMapper.toAdvertEntity(advertRequest);
-        return advertMapper.toAdvertResponse(advert);
+
+        UserEntity user = userRepository.findById(advertRequest.getUserId())
+            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        
+        CategoryEntity category = categoryRepository.findById(advertRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+
+        advert.setUser(user);
+        advert.setCategory(category);
+
+        AdvertEntity savedAdvert = advertRepository.save(advert);
+
+        return advertMapper.toAdvertResponse(savedAdvert);
     }
 
     public AdvertResponse getAdvertById(Long id) {
         System.out.println("Получаем объявление по id: " + id);
 
-        return AdvertResponse.builder()       
-            .id(id)
-            .title("Имя лота")
-            .cost(new BigDecimal("0.00"))
-            .address("Адрес лота")
-            .phone("Номер телефона продавца")
-            .description("Описание лота")
-            .build();
-    }
-
-    public AdvertResponse updateAdvertById(Long id, AdvertRequest advertRequest) {
-        System.out.println("Изменение объявления с id: " + id);
-
-        AdvertEntity advert = advertMapper.toAdvertEntity(advertRequest);
+        AdvertEntity advert = advertRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+        
         return advertMapper.toAdvertResponse(advert);
     }
 
-    public String deleteAdvertById(Long id) {
+    @Transactional
+    public AdvertResponse updateAdvertById(Long id, AdvertRequest advertRequest) {
+        System.out.println("Изменение объявления с id: " + id);
+
+        AdvertEntity advert = advertRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+
+        advertMapper.updateAdvertFromDto(advertRequest, advert);
+        return advertMapper.toAdvertResponse(advert);
+    }
+
+    @Transactional
+    public void deleteAdvertById(Long id) {
         System.out.println("Удаляем объявление с id: " + id);
-        return "Объявление с id: " + id + " удалено!";
+
+        AdvertEntity advert = advertRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+
+        advertRepository.delete(advert);
     }
 
 }
