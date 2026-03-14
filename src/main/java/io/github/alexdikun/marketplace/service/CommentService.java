@@ -39,9 +39,13 @@ public class CommentService {
         if (commentRequest.getParentId() != null) {
             CommentEntity parentComment = commentRepository.findById(commentRequest.getParentId())
                 .orElseThrow(() -> new RuntimeException("Родительский комментарий не найден!"));
+                if (!parentComment.getAdvert().getId().equals(advertId)) {
+                    throw new RuntimeException("Родительский комментарий принадлежит другому объявлению");
+                }   
             
             commentEntity.setParentComment(parentComment);
         }
+
 
         commentEntity.setUser(author);
         commentEntity.setAdvert(advert);
@@ -74,8 +78,6 @@ public class CommentService {
         CommentEntity commentEntity = commentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
 
-        commentMapper.updateCommentFromDto(commentRequest, commentEntity);
-
         if (commentRequest.getParentId() != null && commentRequest.getParentId().equals(id)) {
             throw new RuntimeException("Комментарий не может быть родителем самого себя");
         }
@@ -83,12 +85,15 @@ public class CommentService {
         if (commentRequest.getParentId() != null) {
             CommentEntity parentComment = commentRepository.findById(commentRequest.getParentId())
                 .orElseThrow(() -> new RuntimeException("Родительский комментарий не найден"));
-            
+            if (!parentComment.getAdvert().getId().equals(commentEntity.getAdvert().getId())) {
+                    throw new RuntimeException("Родительский комментарий принадлежит другому объявлению");
+            }   
             commentEntity.setParentComment(parentComment);
         } else {
             commentEntity.setParentComment(null);
         }
 
+        commentMapper.updateCommentFromDto(commentRequest, commentEntity);
         return commentMapper.toCommentResponse(commentEntity);
 
     }
