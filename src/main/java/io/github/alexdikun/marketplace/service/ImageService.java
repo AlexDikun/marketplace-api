@@ -46,15 +46,6 @@ public class ImageService {
         return imageMapper.toImageResponse(imageEntity);
     }
 
-    public ImageResponse updateImageById(Long id, ImageRequest imageRequest) {
-        System.out.println("Заменяем изображение в объявлении по id: " + id);
-
-        return ImageResponse.builder()
-            .id(id)
-            .url(imageRequest.getUrl())
-            .build();
-    }
-
     @Transactional
     public void deleteImageById(Long id) {
         System.out.println("В объявлении, удаляем изображение с id: " + id);
@@ -64,5 +55,6 @@ public class ImageService {
 
         fileStorageService.deleteFile(imageEntity.getUrl());
         imageRepository.delete(imageEntity);
+        
     }
 }
