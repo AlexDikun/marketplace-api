@@ -1,12 +1,14 @@
 package io.github.alexdikun.marketplace.service;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import io.github.alexdikun.marketplace.entities.AdvertEntity;
 import io.github.alexdikun.marketplace.entities.ImageEntity;
 import io.github.alexdikun.marketplace.mapper.ImageMapper;
-import io.github.alexdikun.marketplace.request.ImageRequest;
+import io.github.alexdikun.marketplace.repository.AdvertRepository;
+import io.github.alexdikun.marketplace.repository.ImageRepository;
 import io.github.alexdikun.marketplace.response.ImageResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -14,22 +16,34 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImageService {
 
+    private final AdvertRepository advertRepository;
+    private final ImageRepository imageRepository;
+    private FileStorageService fileStorageService;
     private final ImageMapper imageMapper;
 
-    public ImageResponse createImage(Long advertId, ImageRequest imageRequest) {
+    @Transactional
+    public ImageResponse uploadImage(Long advertId, MultipartFile file) {
         System.out.println("Добавляем изображение к объявлению!");
 
-        ImageEntity imageEntity = imageMapper.toImageEntity(imageRequest);
-        return imageMapper.toImageResponse(imageEntity);
+        AdvertEntity advert = advertRepository.findById(advertId)
+            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+        String filename = fileStorageService.saveFile(file);
+
+        ImageEntity imageEntity = new ImageEntity();
+        imageEntity.setUrl(filename);
+        imageEntity.setAdvert(advert);
+
+        ImageEntity savedImage = imageRepository.save(imageEntity);
+        return imageMapper.toImageResponse(savedImage);
     }
 
     public ImageResponse getImageById(Long id) {
         System.out.println("Получаем изображение по id: " + id);
 
-        return ImageResponse.builder()
-            .id(id)
-            .url("file path")
-            .build();
+        ImageEntity imageEntity = imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Изображение не найдено"));
+
+        return imageMapper.toImageResponse(imageEntity);
     }
 
     public ImageResponse updateImageById(Long id, ImageRequest imageRequest) {
@@ -41,8 +55,14 @@ public class ImageService {
             .build();
     }
 
-    public String deleteImageById(Long id) {
+    @Transactional
+    public void deleteImageById(Long id) {
         System.out.println("В объявлении, удаляем изображение с id: " + id);
-        return "Изображение с id: " + id + " удалено!";
+
+        ImageEntity imageEntity = imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Изображение не найдено"));
+
+        fileStorageService.deleteFile(imageEntity.getUrl());
+        imageRepository.delete(imageEntity);
     }
 }
