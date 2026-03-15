@@ -18,6 +18,18 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+       
+  web:
+      resources:
+        static-locations: file:uploads/
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+storage:
+  upload-dir: ./uploads
 
 logging:
   level:
