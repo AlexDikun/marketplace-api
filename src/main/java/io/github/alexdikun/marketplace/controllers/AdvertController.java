@@ -3,10 +3,10 @@ package io.github.alexdikun.marketplace.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.request.CommentRequest;
-import io.github.alexdikun.marketplace.request.ImageRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import io.github.alexdikun.marketplace.response.CommentResponse;
 import io.github.alexdikun.marketplace.response.ImageResponse;
@@ -127,15 +127,13 @@ public class AdvertController {
     }
 
     @PostMapping("{id}/images")
-    @Operation(summary = "Создает изображение по модели в объявлении")
+    @Operation(summary = "Загружает изображение по модели в объявлении")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Изображение добавлено"),
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<ImageResponse> addImageOnAdvert(@PathVariable Long id, 
-        @Parameter(description = "Модель для создания данных") @RequestBody ImageRequest imageRequest
-    ) {
-        return new ResponseEntity<>(imageService.createImage(id, imageRequest), HttpStatus.CREATED);
+    public ResponseEntity<ImageResponse> uploadImageOnAdvert(@PathVariable Long id, @RequestParam MultipartFile file) {
+        return new ResponseEntity<>(imageService.uploadImage(id, file), HttpStatus.CREATED);
     }
 }
