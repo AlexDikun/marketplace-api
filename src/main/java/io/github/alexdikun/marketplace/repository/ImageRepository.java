@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
 
-    List<ImageEntity> findByAdvert(Long advertId);
+    List<ImageEntity> findByAdvertId(Long advertId);
     
 }
