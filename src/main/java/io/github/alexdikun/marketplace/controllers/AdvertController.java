@@ -129,7 +129,7 @@ public class AdvertController {
     @PostMapping("{id}/images")
     @Operation(summary = "Загружает изображение по модели в объявлении")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Изображение добавлено"),
+        @ApiResponse(responseCode = "201", description = "Изображение загружено"),
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
