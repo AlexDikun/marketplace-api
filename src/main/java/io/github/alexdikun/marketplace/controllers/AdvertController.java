@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -122,8 +123,12 @@ public class AdvertController {
         @ApiResponse(responseCode = "404", description = "Никакие комментарии не найдены"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<List<CommentResponse>> getAllCategories(@PathVariable Long id) {
-        return new ResponseEntity<>(commentService.getAllComments(id), HttpStatus.OK);
+    public ResponseEntity<Page<CommentResponse>> getAllCategories(
+        @PathVariable Long id, 
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(commentService.getAllComments(id, page, size), HttpStatus.OK);
     }
 
     @PostMapping("{id}/images")

@@ -1,6 +1,10 @@
 package io.github.alexdikun.marketplace.service;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,12 +67,13 @@ public class CommentService {
         return commentMapper.toCommentResponse(commentEntity);
     }
 
-    public List<CommentResponse> getAllComments(Long advertId) {
+    public Page<CommentResponse> getAllComments(Long advertId, int page, int size) {
         System.out.println("Получаем список всех комментариев в объявлении!");
 
-        List<CommentEntity> allComments = commentRepository.findByAdvertId(advertId);
-        return commentMapper.toCommentResponseList(allComments);
+        Pageable pageable = PageRequest.of(page, size);
 
+        Page<CommentEntity> commentPage = commentRepository.findByAdvertId(advertId, pageable);
+        return commentPage.map(commentMapper::toCommentResponse);
     }
 
     @Transactional
