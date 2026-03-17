@@ -2,6 +2,9 @@ package io.github.alexdikun.marketplace.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,11 +48,13 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(categoryEntity);
     }
 
-    public List<CategoryResponse> getAllCategories() {
+    public Page<CategoryResponse> getAllCategories(int page, int size) {
         System.out.println("Получаем список всех категорий");
 
-        List<CategoryEntity> allCategories = categoryRepository.findAll();
-        return categoryMapper.toCategoryResponseList(allCategories);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CategoryEntity> categoryPage = categoryRepository.findAll(pageable);
+
+        return categoryPage.map(categoryMapper::toCategoryResponse);
     }
 
     @Transactional
