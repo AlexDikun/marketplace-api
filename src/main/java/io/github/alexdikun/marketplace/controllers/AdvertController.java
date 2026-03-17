@@ -63,11 +63,13 @@ public class AdvertController {
         @ApiResponse(responseCode = "200", description = "Запрос выполнен успешно"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<List<AdvertResponse>> searchAdverts(
+    public ResponseEntity<Page<AdvertResponse>> searchAdverts(
         @Parameter(description = "Текст запроса с клавиатуры")
-        @RequestParam String query
+        @RequestParam String query,
+         @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
     ) {
-        return new ResponseEntity<>(advertService.searchAdverts(query), HttpStatus.OK);
+        return new ResponseEntity<>(advertService.searchAdverts(query, page, size), HttpStatus.OK);
     }
 
     @GetMapping("{id}")

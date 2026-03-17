@@ -1,7 +1,8 @@
 package io.github.alexdikun.marketplace.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,11 +46,12 @@ public class AdvertService {
         return advertMapper.toAdvertResponse(savedAdvert);
     }
 
-    public List<AdvertResponse> searchAdverts(String query) {
+    public Page<AdvertResponse> searchAdverts(String query, int page, int size) {
         System.out.println("Получаем список объявлений по поисковому запросу!");
 
-        List<AdvertEntity> adverts = advertRepository.search(query);
-        return advertMapper.toListAdvertResponse(adverts);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AdvertEntity> advertPage = advertRepository.search(query, pageable);
+        return advertPage.map(advertMapper::toAdvertResponse);
     }
 
     public AdvertResponse getAdvertById(Long id) {

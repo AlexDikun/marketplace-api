@@ -1,7 +1,8 @@
 package io.github.alexdikun.marketplace.repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import io.github.alexdikun.marketplace.entities.AdvertEntity;
 @Repository
 public interface AdvertRepository extends JpaRepository<AdvertEntity, Long> {
 
+    @EntityGraph(attributePaths = {"user", "category"})
     @Query("""
         SELECT a
         FROM AdvertEntity a
@@ -20,6 +22,6 @@ public interface AdvertRepository extends JpaRepository<AdvertEntity, Long> {
         OR
         LOWER(a.description) LIKE LOWER(CONCAT('%', :query, '%')) 
     """)
-    List<AdvertEntity> search(@Param("query") String query);
+    Page<AdvertEntity> search(@Param("query") String query, Pageable pageable);
     
 }
