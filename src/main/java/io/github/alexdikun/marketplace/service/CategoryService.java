@@ -1,58 +1,98 @@
 package io.github.alexdikun.marketplace.service;
 
-import java.util.List;
-import java.util.UUID;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import io.github.alexdikun.marketplace.entities.CategoryEntity;
+import io.github.alexdikun.marketplace.mapper.CategoryMapper;
+import io.github.alexdikun.marketplace.repository.CategoryRepository;
 import io.github.alexdikun.marketplace.request.CategoryRequest;
 import io.github.alexdikun.marketplace.response.CategoryResponse;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
-    
-    public CategoryResponse createCategory(CategoryRequest request) {
-        System.out.println("Cоздаем категорию!");
 
-        return CategoryResponse.builder()
-            .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE)
-            .name(request.getName())
-            .parentId(request.getParentId())
-            .build();
+    private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
+    
+    @Transactional
+    public CategoryResponse createCategory(CategoryRequest categoryRequest) {
+        System.out.println("Cоздаем категорию!");
+        
+        CategoryEntity categoryEntity = categoryMapper.toCategoryEntity(categoryRequest);
+
+        if (categoryRequest.getParentId() != null) {
+            CategoryEntity parentCategory = categoryRepository.findById(categoryRequest.getParentId())
+                .orElseThrow(() -> new RuntimeException("Родительская категория не найдена"));
+            
+            categoryEntity.setParentCategory(parentCategory);
+        }
+
+        CategoryEntity savedCategory = categoryRepository.save(categoryEntity);
+
+        return categoryMapper.toCategoryResponse(savedCategory);
     }
 
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryResponse getCategory(Long id) {
         System.out.println("Получаем категорию по id: " + id);
 
-        return CategoryResponse.builder()
-            .id(id)
-            .name("Название категории")
-            .parentId(null)
-            .build();
+        CategoryEntity categoryEntity = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+        return categoryMapper.toCategoryResponse(categoryEntity);
     }
 
-    public List<CategoryResponse> getAllCategories() {
+    public Page<CategoryResponse> getAllCategories(int page, int size) {
         System.out.println("Получаем список всех категорий");
 
-        return List.of(
-            CategoryResponse.builder().id(1L).name("Название категории 1").parentId(null).build(),
-            CategoryResponse.builder().id(2L).name("Название категории 2").parentId(null).build()
-        );
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CategoryEntity> categoryPage = categoryRepository.findAll(pageable);
+
+        return categoryPage.map(categoryMapper::toCategoryResponse);
     }
 
-    public CategoryResponse updateCategoryById(Long id, CategoryRequest request) {
+    @Transactional
+    public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
         System.out.println("Изменение категории с id: " + id);
+        
+        CategoryEntity categoryEntity = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Категория не найдена"));
 
-        return CategoryResponse.builder()
-            .id(id)
-            .name(request.getName())
-            .parentId(request.getParentId()) 
-            .build();
+        if (categoryRequest.getName() != null &&
+            categoryRepository.existsByNameAndIdNot(categoryRequest.getName(), id)) {
+
+            throw new RuntimeException("Такое название категории уже существует!");
+        }
+
+        if (categoryRequest.getParentId() != null && categoryRequest.getParentId().equals(id)) {
+            throw new RuntimeException("Категория не может быть родителем самой себя");
+        }
+
+        if (categoryRequest.getParentId() != null) {
+            CategoryEntity parentCategory = categoryRepository.findById(categoryRequest.getParentId())
+                .orElseThrow(() -> new RuntimeException("Родительская категория не найдена"));
+            
+            categoryEntity.setParentCategory(parentCategory);
+        } else {
+            categoryEntity.setParentCategory(null);
+        }
+
+        categoryMapper.updateCategoryFromDto(categoryRequest, categoryEntity);
+        return categoryMapper.toCategoryResponse(categoryEntity);
     }
 
-    public String deleteCategoryById(Long id) {
+    @Transactional
+    public void deleteCategory(Long id) {
         System.out.println("Удаляем категорию с id: " + id);
-        return "Категория с id: " + id + " удалена!";
+        
+        CategoryEntity categoryEntity = categoryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+        
+        categoryRepository.delete(categoryEntity);
     }
 
     

@@ -1,7 +1,6 @@
 package io.github.alexdikun.marketplace.controllers;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alexdikun.marketplace.request.CategoryRequest;
@@ -52,7 +52,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<CategoryResponse> getCategory(@PathVariable Long id) {
-        return new ResponseEntity<>(categoryService.getCategoryById(id), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getCategory(id), HttpStatus.OK);
     }
 
     @GetMapping
@@ -62,8 +62,11 @@ public class CategoryController {
         @ApiResponse(responseCode = "404", description = "Никакие категории не найдены"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
-        return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
+    public ResponseEntity<Page<CategoryResponse>> getAllCategories(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(categoryService.getAllCategories(page, size), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
@@ -74,18 +77,18 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<CategoryResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
-        return new ResponseEntity<>(categoryService.updateCategoryById(id, request), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.updateCategory(id, request), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление категории по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Категория удалена"),
+        @ApiResponse(responseCode = "204", description = "Категория удалена"),
         @ApiResponse(responseCode = "404", description = "Категория не найдена"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
-        return new ResponseEntity<>(categoryService.deleteCategoryById(id), HttpStatus.OK);
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
     
 }

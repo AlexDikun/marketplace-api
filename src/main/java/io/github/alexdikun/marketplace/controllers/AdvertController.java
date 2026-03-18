@@ -1,11 +1,12 @@
 package io.github.alexdikun.marketplace.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.request.CommentRequest;
-import io.github.alexdikun.marketplace.request.ImageRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import io.github.alexdikun.marketplace.response.CommentResponse;
 import io.github.alexdikun.marketplace.response.ImageResponse;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,6 +57,21 @@ public class AdvertController {
         return new ResponseEntity<>(advertService.createAdvert(advertRequest), HttpStatus.CREATED);
     }
 
+    @GetMapping("/search")
+    @Operation(summary = "Получить список интересующих объявлений по поиску")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Запрос выполнен успешно"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    public ResponseEntity<Page<AdvertResponse>> searchAdverts(
+        @Parameter(description = "Текст запроса с клавиатуры")
+        @RequestParam String query,
+         @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(advertService.searchAdverts(query, page, size), HttpStatus.OK);
+    }
+
     @GetMapping("{id}")
     @Operation(summary = "Получение объявления по ID")
     @ApiResponses(value = {
@@ -63,7 +80,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<AdvertResponse> getAdvert(@PathVariable Long id) {
-        return new ResponseEntity<>(advertService.getAdvertById(id), HttpStatus.OK);
+        return new ResponseEntity<>(advertService.getAdvert(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
@@ -74,18 +91,18 @@ public class AdvertController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<AdvertResponse> updateAdvert(@PathVariable Long id, @RequestBody AdvertRequest advertRequest) {
-        return new ResponseEntity<>(advertService.updateAdvertById(id, advertRequest), HttpStatus.OK);
+        return new ResponseEntity<>(advertService.updateAdvert(id, advertRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление объявления по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Объявление удалено"),
+        @ApiResponse(responseCode = "204", description = "Объявление удалено"),
         @ApiResponse(responseCode = "404", description = "Объявление не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<String> deleteAdvert(@PathVariable Long id) {
-        return new ResponseEntity<>(advertService.deleteAdvertById(id), HttpStatus.OK);
+    public ResponseEntity<Void> deleteAdvert(@PathVariable Long id) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("{id}/comments")
@@ -108,20 +125,22 @@ public class AdvertController {
         @ApiResponse(responseCode = "404", description = "Никакие комментарии не найдены"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<List<CommentResponse>> getAllCategories(@PathVariable Long id) {
-        return new ResponseEntity<>(commentService.getAllComments(id), HttpStatus.OK);
+    public ResponseEntity<Page<CommentResponse>> getAllCategories(
+        @PathVariable Long id, 
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(commentService.getAllComments(id, page, size), HttpStatus.OK);
     }
 
     @PostMapping("{id}/images")
-    @Operation(summary = "Создает изображение по модели в объявлении")
+    @Operation(summary = "Загружает изображение по модели в объявлении")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Изображение добавлено"),
+        @ApiResponse(responseCode = "201", description = "Изображение загружено"),
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<ImageResponse> addImageOnAdvert(@PathVariable Long id, 
-        @Parameter(description = "Модель для создания данных") @RequestBody ImageRequest imageRequest
-    ) {
-        return new ResponseEntity<>(imageService.createImage(id, imageRequest), HttpStatus.CREATED);
+    public ResponseEntity<ImageResponse> uploadImageOnAdvert(@PathVariable Long id, @RequestParam MultipartFile file) {
+        return new ResponseEntity<>(imageService.uploadImage(id, file), HttpStatus.CREATED);
     }
 }
