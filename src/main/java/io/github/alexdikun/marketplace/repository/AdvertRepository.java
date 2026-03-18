@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
+import java.util.Optional;
+
 
 @Repository
 public interface AdvertRepository extends JpaRepository<AdvertEntity, Long> {
@@ -23,5 +25,8 @@ public interface AdvertRepository extends JpaRepository<AdvertEntity, Long> {
         LOWER(a.description) LIKE LOWER(CONCAT('%', :query, '%')) 
     """)
     Page<AdvertEntity> search(@Param("query") String query, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "category", "images"})
+    Optional<AdvertEntity> findWithDetailsById(Long id);
     
 }

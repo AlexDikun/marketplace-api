@@ -57,7 +57,7 @@ public class AdvertService {
     public AdvertResponse getAdvertById(Long id) {
         System.out.println("Получаем объявление по id: " + id);
 
-        AdvertEntity advert = advertRepository.findById(id)
+        AdvertEntity advert = advertRepository.findWithDetailsById(id)
             .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
         
         return advertMapper.toAdvertResponse(advert);
