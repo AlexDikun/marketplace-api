@@ -1,6 +1,8 @@
 package io.github.alexdikun.marketplace.response;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +11,16 @@ import lombok.Data;
 @Builder
 public class AdvertResponse {
     private Long id;
-    private String name;
-    private Double cost;
+    private String title;
+    private BigDecimal cost;
     private String address;
     private String phone;
     private String description;
-    private LocalDateTime createDateTime;
+
+    private Long userId;
+    private Long categoryId;
+
+    private Instant createdAt;
+
+    List<ImageResponse> images;
 }

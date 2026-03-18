@@ -37,4 +37,11 @@ public class CategoryEntity {
     @OneToMany(mappedBy = "parentCategory", fetch = FetchType.LAZY)
     private List<CategoryEntity> subcategories = new ArrayList<>();
 
+    public CategoryEntity() {}
+
+    public CategoryEntity(String name, CategoryEntity parentCategory) {
+        this.name = name;
+        this.parentCategory = parentCategory;
+    };
+
 }

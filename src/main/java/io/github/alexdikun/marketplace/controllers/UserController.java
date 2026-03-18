@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-@Tag(name= "User", description = "API пользователей")
+@Tag(name = "User", description = "API пользователей")
 public class UserController {
     
     private final UserService userService;
@@ -49,7 +49,7 @@ public class UserController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
@@ -62,17 +62,17 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, 
         @Parameter(description = "Модель для создания данных") @RequestBody UserRequest userRequest
     ) {
-        return new ResponseEntity<>(userService.updateUserById(id, userRequest), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updateUser(id, userRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление пользователя по ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Пользователь удален"),
+        @ApiResponse(responseCode = "204", description = "Пользователь удален"),
         @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        return new ResponseEntity<>(userService.deleteUserById(id), HttpStatus.OK);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -52,4 +52,6 @@ logs/
 ### linux's tmp files ###
 *~
 
+### upload files ###
+uploads/
 
