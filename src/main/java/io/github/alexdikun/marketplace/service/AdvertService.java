@@ -54,7 +54,7 @@ public class AdvertService {
         return advertPage.map(advertMapper::toAdvertResponse);
     }
 
-    public AdvertResponse getAdvertById(Long id) {
+    public AdvertResponse getAdvert(Long id) {
         System.out.println("Получаем объявление по id: " + id);
 
         AdvertEntity advert = advertRepository.findWithDetailsById(id)
@@ -64,7 +64,7 @@ public class AdvertService {
     }
 
     @Transactional
-    public AdvertResponse updateAdvertById(Long id, AdvertRequest advertRequest) {
+    public AdvertResponse updateAdvert(Long id, AdvertRequest advertRequest) {
         System.out.println("Изменение объявления с id: " + id);
 
         AdvertEntity advert = advertRepository.findById(id)
@@ -75,7 +75,7 @@ public class AdvertService {
     }
 
     @Transactional
-    public void deleteAdvertById(Long id) {
+    public void deleteAdvert(Long id) {
         System.out.println("Удаляем объявление с id: " + id);
 
         AdvertEntity advert = advertRepository.findById(id)

@@ -49,7 +49,7 @@ public class UserController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
@@ -62,7 +62,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, 
         @Parameter(description = "Модель для создания данных") @RequestBody UserRequest userRequest
     ) {
-        return new ResponseEntity<>(userService.updateUserById(id, userRequest), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updateUser(id, userRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

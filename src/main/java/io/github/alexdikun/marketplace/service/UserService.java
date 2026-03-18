@@ -26,7 +26,7 @@ public class UserService {
         return userMapper.toListUserResponse(allUsers);
     } 
     
-    public UserResponse getUserById(Long id) {
+    public UserResponse getUser(Long id) {
         System.out.println("Получаем пользователя по id: " + id);
 
         UserEntity userEntity = userRepository.findById(id)
@@ -36,7 +36,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUserById(Long id, UserRequest userRequest) {
+    public UserResponse updateUser(Long id, UserRequest userRequest) {
         System.out.println("Обновление пользователя с id: " + id);
 
         UserEntity userEntity = userRepository.findById(id)
@@ -53,7 +53,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUserById(Long id) {
+    public void deleteUser(Long id) {
         System.out.println("Удаляем пользователя с id: " + id);
 
         UserEntity userEntity = userRepository.findById(id)

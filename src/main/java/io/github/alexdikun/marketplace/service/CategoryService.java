@@ -38,7 +38,7 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(savedCategory);
     }
 
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryResponse getCategory(Long id) {
         System.out.println("Получаем категорию по id: " + id);
 
         CategoryEntity categoryEntity = categoryRepository.findById(id)
@@ -56,7 +56,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryResponse updateCategoryById(Long id, CategoryRequest categoryRequest) {
+    public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
         System.out.println("Изменение категории с id: " + id);
         
         CategoryEntity categoryEntity = categoryRepository.findById(id)
@@ -86,7 +86,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategoryById(Long id) {
+    public void deleteCategory(Long id) {
         System.out.println("Удаляем категорию с id: " + id);
         
         CategoryEntity categoryEntity = categoryRepository.findById(id)

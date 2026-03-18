@@ -80,7 +80,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<AdvertResponse> getAdvert(@PathVariable Long id) {
-        return new ResponseEntity<>(advertService.getAdvertById(id), HttpStatus.OK);
+        return new ResponseEntity<>(advertService.getAdvert(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
@@ -91,7 +91,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<AdvertResponse> updateAdvert(@PathVariable Long id, @RequestBody AdvertRequest advertRequest) {
-        return new ResponseEntity<>(advertService.updateAdvertById(id, advertRequest), HttpStatus.OK);
+        return new ResponseEntity<>(advertService.updateAdvert(id, advertRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

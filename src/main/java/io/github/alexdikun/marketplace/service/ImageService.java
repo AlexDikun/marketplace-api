@@ -37,7 +37,7 @@ public class ImageService {
         return imageMapper.toImageResponse(savedImage);
     }
 
-    public ImageResponse getImageById(Long id) {
+    public ImageResponse getImage(Long id) {
         System.out.println("Получаем изображение по id: " + id);
 
         ImageEntity imageEntity = imageRepository.findById(id)
@@ -47,7 +47,7 @@ public class ImageService {
     }
 
     @Transactional
-    public void deleteImageById(Long id) {
+    public void deleteImage(Long id) {
         System.out.println("В объявлении, удаляем изображение с id: " + id);
 
         ImageEntity imageEntity = imageRepository.findById(id)

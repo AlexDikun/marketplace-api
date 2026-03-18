@@ -52,7 +52,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<CategoryResponse> getCategory(@PathVariable Long id) {
-        return new ResponseEntity<>(categoryService.getCategoryById(id), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getCategory(id), HttpStatus.OK);
     }
 
     @GetMapping
@@ -77,7 +77,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<CategoryResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
-        return new ResponseEntity<>(categoryService.updateCategoryById(id, request), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.updateCategory(id, request), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

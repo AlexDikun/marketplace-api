@@ -57,7 +57,7 @@ public class CommentService {
         return commentMapper.toCommentResponse(savedComment);
     }
 
-    public CommentResponse getCommentById(Long id) {
+    public CommentResponse getComment(Long id) {
         System.out.println("Получаем комментарий по id: " + id);
 
         CommentEntity commentEntity = commentRepository.findById(id)
@@ -75,7 +75,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse updateCommentById(Long id, CommentRequest commentRequest) {
+    public CommentResponse updateComment(Long id, CommentRequest commentRequest) {
         System.out.println("Изменение комментария с id: " + id);
 
         CommentEntity commentEntity = commentRepository.findById(id)
@@ -102,7 +102,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteCommentById(Long id) {
+    public void deleteComment(Long id) {
         System.out.println("Удаляем комментарий с id: " + id);
 
         CommentEntity commentEntity = commentRepository.findById(id)

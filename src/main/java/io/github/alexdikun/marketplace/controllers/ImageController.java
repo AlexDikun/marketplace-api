@@ -34,7 +34,7 @@ public class ImageController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<ImageResponse> getImage(@PathVariable Long id) {
-        return new ResponseEntity<>(imageService.getImageById(id), HttpStatus.OK);
+        return new ResponseEntity<>(imageService.getImage(id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

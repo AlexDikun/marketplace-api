@@ -36,7 +36,7 @@ public class CommentController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<CommentResponse> getComment(@PathVariable Long id) {
-        return new ResponseEntity<>(commentService.getCommentById(id), HttpStatus.OK);
+        return new ResponseEntity<>(commentService.getComment(id), HttpStatus.OK);
     }
 
     @PutMapping("{id}")
@@ -47,7 +47,7 @@ public class CommentController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<CommentResponse> updateComment(@PathVariable Long id, @RequestBody CommentRequest commentRequest) {
-        return new ResponseEntity<>(commentService.updateCommentById(id, commentRequest), HttpStatus.OK);
+        return new ResponseEntity<>(commentService.updateComment(id, commentRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
