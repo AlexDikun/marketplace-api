@@ -26,4 +26,10 @@ public class RoleEntity {
     @Enumerated(EnumType.STRING)
     private Role name;
 
+    public RoleEntity() {}
+
+    public RoleEntity(Role name) {
+        this.name = name;
+    };
+
 }
