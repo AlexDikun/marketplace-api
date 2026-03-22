@@ -2,6 +2,7 @@ package io.github.alexdikun.marketplace.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +17,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/image")
 @RequiredArgsConstructor
@@ -33,7 +36,7 @@ public class ImageController {
         @ApiResponse(responseCode = "404", description = "Изображение не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<ImageResponse> getImage(@PathVariable Long id) {
+    public ResponseEntity<ImageResponse> getImage(@PathVariable @Positive Long id) {
         return new ResponseEntity<>(imageService.getImage(id), HttpStatus.OK);
     }
 
@@ -44,7 +47,7 @@ public class ImageController {
         @ApiResponse(responseCode = "404", description = "Изображение не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteImage(@PathVariable @Positive Long id) {
         return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
 }
