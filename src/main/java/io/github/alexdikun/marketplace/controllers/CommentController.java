@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
@@ -50,7 +51,7 @@ public class CommentController {
     })
     public ResponseEntity<CommentResponse> updateComment(
         @PathVariable @Positive Long id, 
-        @RequestBody CommentRequest commentRequest
+        @RequestBody @Valid CommentRequest commentRequest
     ) {
         return new ResponseEntity<>(commentService.updateComment(id, commentRequest), HttpStatus.OK);
     }

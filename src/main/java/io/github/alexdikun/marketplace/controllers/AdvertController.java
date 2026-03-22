@@ -118,7 +118,7 @@ public class AdvertController {
     })
     public ResponseEntity<CommentResponse> leaveCommentOnAdvert(
         @PathVariable @Positive Long id, 
-        @Parameter(description = "Модель для создания данных") @RequestBody CommentRequest commentRequest
+        @Parameter(description = "Модель для создания данных") @Validated(OnCreate.class) @RequestBody CommentRequest commentRequest
     ) {
         return new ResponseEntity<>(commentService.createComment(id, commentRequest), HttpStatus.CREATED);
     }
