@@ -13,6 +13,7 @@ import io.github.alexdikun.marketplace.response.ImageResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
 import io.github.alexdikun.marketplace.service.ImageService;
+import io.github.alexdikun.marketplace.validation.OnCreate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -53,7 +54,7 @@ public class AdvertController {
     })
     public ResponseEntity<AdvertResponse> createAdvert(
         @Parameter(description = "Модель для создания данных")
-        @RequestBody AdvertRequest advertRequest) {
+        @Validated(OnCreate.class) @RequestBody AdvertRequest advertRequest) {
         return new ResponseEntity<>(advertService.createAdvert(advertRequest), HttpStatus.CREATED);
     }
 
@@ -66,7 +67,7 @@ public class AdvertController {
     public ResponseEntity<Page<AdvertResponse>> searchAdverts(
         @Parameter(description = "Текст запроса с клавиатуры")
         @RequestParam String query,
-         @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         return new ResponseEntity<>(advertService.searchAdverts(query, page, size), HttpStatus.OK);
