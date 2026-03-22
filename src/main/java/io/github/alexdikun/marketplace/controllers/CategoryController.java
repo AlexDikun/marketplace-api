@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
@@ -43,7 +44,7 @@ public class CategoryController {
     })
     public ResponseEntity<CategoryResponse> createCategory(
         @Parameter(description = "Модель для создания данных")
-        @RequestBody CategoryRequest request) {
+        @RequestBody @Valid CategoryRequest request) {
         return new ResponseEntity<>(categoryService.createCategory(request), HttpStatus.CREATED);
     }
 
@@ -81,7 +82,7 @@ public class CategoryController {
     })
     public ResponseEntity<CategoryResponse> updateCategory(
         @PathVariable @Positive Long id, 
-        @RequestBody CategoryRequest request
+        @RequestBody @Valid CategoryRequest request
     ) {
         return new ResponseEntity<>(categoryService.updateCategory(id, request), HttpStatus.OK);
     }
