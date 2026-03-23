@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
 import io.github.alexdikun.marketplace.entities.ImageEntity;
+import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.ImageMapper;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.ImageRepository;
@@ -26,7 +27,7 @@ public class ImageService {
         System.out.println("Добавляем изображение к объявлению!");
 
         AdvertEntity advert = advertRepository.findById(advertId)
-            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
         String filename = fileStorageService.saveFile(file);
 
         ImageEntity imageEntity = new ImageEntity();
@@ -41,7 +42,7 @@ public class ImageService {
         System.out.println("Получаем изображение по id: " + id);
 
         ImageEntity imageEntity = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Изображение не найдено"));
+                .orElseThrow(() -> new NotFoundException("Изображение не найдено"));
 
         return imageMapper.toImageResponse(imageEntity);
     }
@@ -51,7 +52,7 @@ public class ImageService {
         System.out.println("В объявлении, удаляем изображение с id: " + id);
 
         ImageEntity imageEntity = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Изображение не найдено"));
+                .orElseThrow(() -> new NotFoundException("Изображение не найдено"));
 
         fileStorageService.deleteFile(imageEntity.getUrl());
         imageRepository.delete(imageEntity);
