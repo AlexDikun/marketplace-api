@@ -28,6 +28,12 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8086/realms/marketplace
+          
 storage:
   upload-dir: ./uploads
 
