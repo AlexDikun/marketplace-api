@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.alexdikun.marketplace.entities.UserEntity;
+import io.github.alexdikun.marketplace.exceptions.ConflictException;
+import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.UserMapper;
 import io.github.alexdikun.marketplace.repository.UserRepository;
 import io.github.alexdikun.marketplace.request.UserRequest;
@@ -30,7 +32,7 @@ public class UserService {
         System.out.println("Получаем пользователя по id: " + id);
 
         UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         return userMapper.toUserResponse(userEntity);
     }
@@ -40,12 +42,12 @@ public class UserService {
         System.out.println("Обновление пользователя с id: " + id);
 
         UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         if (userRequest.getLogin() != null &&
             userRepository.existsByLoginAndIdNot(userRequest.getLogin(), id)) {
 
-            throw new RuntimeException("Такой логин уже существует!");
+            throw new ConflictException("Такой логин уже существует!");
         }
 
         userMapper.updateUserFromDto(userRequest, userEntity);
@@ -57,7 +59,7 @@ public class UserService {
         System.out.println("Удаляем пользователя с id: " + id);
 
         UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         userRepository.delete(userEntity);
     }

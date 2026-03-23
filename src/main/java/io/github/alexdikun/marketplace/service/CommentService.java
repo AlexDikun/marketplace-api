@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
 import io.github.alexdikun.marketplace.entities.CommentEntity;
 import io.github.alexdikun.marketplace.entities.UserEntity;
+import io.github.alexdikun.marketplace.exceptions.ConflictException;
+import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.CommentMapper;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.CommentRepository;
@@ -33,16 +35,16 @@ public class CommentService {
         CommentEntity commentEntity = commentMapper.toCommentEntity(commentRequest);
 
         UserEntity author = userRepository.findById(commentRequest.getUserId())
-            .orElseThrow(() -> new RuntimeException("Автор комментария не найден"));
+            .orElseThrow(() -> new NotFoundException("Автор комментария не найден"));
         
         AdvertEntity advert = advertRepository.findById(advertId)
-                .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+                .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
 
         if (commentRequest.getParentId() != null) {
             CommentEntity parentComment = commentRepository.findById(commentRequest.getParentId())
-                .orElseThrow(() -> new RuntimeException("Родительский комментарий не найден!"));
+                .orElseThrow(() -> new NotFoundException("Родительский комментарий не найден!"));
                 if (!parentComment.getAdvert().getId().equals(advertId)) {
-                    throw new RuntimeException("Родительский комментарий принадлежит другому объявлению");
+                    throw new ConflictException("Родительский комментарий принадлежит другому объявлению");
                 }   
             
             commentEntity.setParentComment(parentComment);
@@ -61,7 +63,7 @@ public class CommentService {
         System.out.println("Получаем комментарий по id: " + id);
 
         CommentEntity commentEntity = commentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
+            .orElseThrow(() -> new NotFoundException("Комментарий не найден"));
         return commentMapper.toCommentResponse(commentEntity);
     }
 
@@ -79,17 +81,17 @@ public class CommentService {
         System.out.println("Изменение комментария с id: " + id);
 
         CommentEntity commentEntity = commentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
+            .orElseThrow(() -> new NotFoundException("Комментарий не найден"));
 
         if (commentRequest.getParentId() != null && commentRequest.getParentId().equals(id)) {
-            throw new RuntimeException("Комментарий не может быть родителем самого себя");
+            throw new ConflictException("Комментарий не может быть родителем самого себя");
         }
 
         if (commentRequest.getParentId() != null) {
             CommentEntity parentComment = commentRepository.findById(commentRequest.getParentId())
-                .orElseThrow(() -> new RuntimeException("Родительский комментарий не найден"));
+                .orElseThrow(() -> new NotFoundException("Родительский комментарий не найден"));
             if (!parentComment.getAdvert().getId().equals(commentEntity.getAdvert().getId())) {
-                    throw new RuntimeException("Родительский комментарий принадлежит другому объявлению");
+                    throw new ConflictException("Родительский комментарий принадлежит другому объявлению");
             }   
             commentEntity.setParentComment(parentComment);
         } else {
@@ -106,7 +108,7 @@ public class CommentService {
         System.out.println("Удаляем комментарий с id: " + id);
 
         CommentEntity commentEntity = commentRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
+            .orElseThrow(() -> new NotFoundException("Комментарий не найден"));
         commentRepository.delete(commentEntity);
     }
 }

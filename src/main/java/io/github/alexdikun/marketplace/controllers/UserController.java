@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +21,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -48,7 +51,7 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable @Positive Long id) {
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
@@ -59,7 +62,7 @@ public class UserController {
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, 
+    public ResponseEntity<UserResponse> updateUser(@PathVariable @ Positive Long id, 
         @Parameter(description = "Модель для создания данных") @RequestBody UserRequest userRequest
     ) {
         return new ResponseEntity<>(userService.updateUser(id, userRequest), HttpStatus.OK);
@@ -72,7 +75,7 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id) {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

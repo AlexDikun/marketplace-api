@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
 import io.github.alexdikun.marketplace.entities.CategoryEntity;
 import io.github.alexdikun.marketplace.entities.UserEntity;
+import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.AdvertMapper;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.CategoryRepository;
@@ -33,10 +34,10 @@ public class AdvertService {
         AdvertEntity advert = advertMapper.toAdvertEntity(advertRequest);
 
         UserEntity user = userRepository.findById(advertRequest.getUserId())
-            .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         
         CategoryEntity category = categoryRepository.findById(advertRequest.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+            .orElseThrow(() -> new NotFoundException("Категория не найдена"));
 
         advert.setUser(user);
         advert.setCategory(category);
@@ -58,7 +59,7 @@ public class AdvertService {
         System.out.println("Получаем объявление по id: " + id);
 
         AdvertEntity advert = advertRepository.findWithDetailsById(id)
-            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
         
         return advertMapper.toAdvertResponse(advert);
     }
@@ -68,7 +69,7 @@ public class AdvertService {
         System.out.println("Изменение объявления с id: " + id);
 
         AdvertEntity advert = advertRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
 
         advertMapper.updateAdvertFromDto(advertRequest, advert);
         return advertMapper.toAdvertResponse(advert);
@@ -79,7 +80,7 @@ public class AdvertService {
         System.out.println("Удаляем объявление с id: " + id);
 
         AdvertEntity advert = advertRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
 
         advertRepository.delete(advert);
     }

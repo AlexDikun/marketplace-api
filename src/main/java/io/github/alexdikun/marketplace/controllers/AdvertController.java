@@ -13,18 +13,19 @@ import io.github.alexdikun.marketplace.response.ImageResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
 import io.github.alexdikun.marketplace.service.ImageService;
+import io.github.alexdikun.marketplace.validation.OnCreate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
-
+@Validated
 @RestController
 @RequestMapping("/api/v1/adverts")
 @RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class AdvertController {
     })
     public ResponseEntity<AdvertResponse> createAdvert(
         @Parameter(description = "Модель для создания данных")
-        @RequestBody AdvertRequest advertRequest) {
+        @Validated(OnCreate.class) @RequestBody AdvertRequest advertRequest) {
         return new ResponseEntity<>(advertService.createAdvert(advertRequest), HttpStatus.CREATED);
     }
 
@@ -66,7 +67,7 @@ public class AdvertController {
     public ResponseEntity<Page<AdvertResponse>> searchAdverts(
         @Parameter(description = "Текст запроса с клавиатуры")
         @RequestParam String query,
-         @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         return new ResponseEntity<>(advertService.searchAdverts(query, page, size), HttpStatus.OK);
@@ -79,7 +80,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "404", description = "Объявление не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<AdvertResponse> getAdvert(@PathVariable Long id) {
+    public ResponseEntity<AdvertResponse> getAdvert(@PathVariable @Positive Long id) {
         return new ResponseEntity<>(advertService.getAdvert(id), HttpStatus.OK);
     }
 
@@ -90,7 +91,10 @@ public class AdvertController {
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<AdvertResponse> updateAdvert(@PathVariable Long id, @RequestBody AdvertRequest advertRequest) {
+    public ResponseEntity<AdvertResponse> updateAdvert(
+        @PathVariable @Positive Long id, 
+        @RequestBody AdvertRequest advertRequest
+    ) {
         return new ResponseEntity<>(advertService.updateAdvert(id, advertRequest), HttpStatus.OK);
     }
 
@@ -101,7 +105,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "404", description = "Объявление не найдено"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Void> deleteAdvert(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAdvert(@PathVariable @Positive Long id) {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -112,8 +116,9 @@ public class AdvertController {
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<CommentResponse> leaveCommentOnAdvert(@PathVariable Long id, 
-        @Parameter(description = "Модель для создания данных") @RequestBody CommentRequest commentRequest
+    public ResponseEntity<CommentResponse> leaveCommentOnAdvert(
+        @PathVariable @Positive Long id, 
+        @Parameter(description = "Модель для создания данных") @Validated(OnCreate.class) @RequestBody CommentRequest commentRequest
     ) {
         return new ResponseEntity<>(commentService.createComment(id, commentRequest), HttpStatus.CREATED);
     }
@@ -126,7 +131,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Page<CommentResponse>> getAllCategories(
-        @PathVariable Long id, 
+        @PathVariable @Positive Long id, 
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
@@ -140,7 +145,10 @@ public class AdvertController {
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<ImageResponse> uploadImageOnAdvert(@PathVariable Long id, @RequestParam MultipartFile file) {
+    public ResponseEntity<ImageResponse> uploadImageOnAdvert(
+        @PathVariable @Positive Long id, 
+        @RequestParam MultipartFile file
+    ) {
         return new ResponseEntity<>(imageService.uploadImage(id, file), HttpStatus.CREATED);
     }
 }
