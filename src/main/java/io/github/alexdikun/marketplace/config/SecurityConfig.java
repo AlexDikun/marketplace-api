@@ -26,6 +26,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/adverts/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth -> oauth
