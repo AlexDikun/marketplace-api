@@ -2,17 +2,17 @@ package io.github.alexdikun.marketplace.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.alexdikun.marketplace.response.ImageResponse;
 import io.github.alexdikun.marketplace.service.ImageService;
+import io.github.alexdikun.marketplace.service.security.ImageSecurity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class ImageController {
     
     private final ImageService imageService;
+    private final ImageSecurity imageSecurity;
 
     @GetMapping("{id}")
     @Operation(summary = "Получение изображения по ID")
@@ -40,6 +41,7 @@ public class ImageController {
         return new ResponseEntity<>(imageService.getImage(id), HttpStatus.OK);
     }
 
+    @PreAuthorize("@imageSecurity.isOwner(#id)")
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление изображения по ID")
     @ApiResponses(value = {

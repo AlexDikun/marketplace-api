@@ -13,6 +13,9 @@ import io.github.alexdikun.marketplace.response.ImageResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
 import io.github.alexdikun.marketplace.service.ImageService;
+import io.github.alexdikun.marketplace.service.security.AdvertSecurity;
+import io.github.alexdikun.marketplace.service.security.CommentSecurity;
+import io.github.alexdikun.marketplace.service.security.ImageSecurity;
 import io.github.alexdikun.marketplace.validation.OnCreate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +48,7 @@ public class AdvertController {
     private final AdvertService advertService;
     private final CommentService commentService;
     private final ImageService imageService;
+    private final AdvertSecurity advertSecurity;
 
     @PostMapping
     @Operation(summary = "Создание объявления")
@@ -84,6 +89,7 @@ public class AdvertController {
         return new ResponseEntity<>(advertService.getAdvert(id), HttpStatus.OK);
     }
 
+    @PreAuthorize("@advertSecurity.isOwner(#id)")
     @PutMapping("{id}")
     @Operation(summary = "Изменение объявления по ID")
     @ApiResponses(value = {
@@ -98,6 +104,7 @@ public class AdvertController {
         return new ResponseEntity<>(advertService.updateAdvert(id, advertRequest), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or @advertSecurity.isOwner(#id)")
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление объявления по ID")
     @ApiResponses(value = {
@@ -138,6 +145,7 @@ public class AdvertController {
         return new ResponseEntity<>(commentService.getAllComments(id, page, size), HttpStatus.OK);
     }
 
+    @PreAuthorize("@advertSecurity.isOwner(#id)")
     @PostMapping("{id}/images")
     @Operation(summary = "Загружает изображение по модели в объявлении")
     @ApiResponses(value = {

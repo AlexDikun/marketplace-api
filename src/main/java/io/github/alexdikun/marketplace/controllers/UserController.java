@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.alexdikun.marketplace.request.UserRequest;
 import io.github.alexdikun.marketplace.response.UserResponse;
 import io.github.alexdikun.marketplace.service.UserService;
+import io.github.alexdikun.marketplace.service.security.UserSecurity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
     
     private final UserService userService;
+    private final UserSecurity userSecurity;
 
     @GetMapping
     @Operation(summary = "Получение списка всех пользователей!")
@@ -55,6 +58,7 @@ public class UserController {
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
+    @PreAuthorize("@userSecurity.isOwner(#id)")
     @PutMapping("{id}")
     @Operation(summary = "Обновление пользователя по ID")
     @ApiResponses(value = {
@@ -68,6 +72,7 @@ public class UserController {
         return new ResponseEntity<>(userService.updateUser(id, userRequest), HttpStatus.OK);
     }
 
+    @PreAuthorize("@userSecurity.isOwner(#id)")
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление пользователя по ID")
     @ApiResponses(value = {
