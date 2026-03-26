@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/me").permitAll() // разрешение на DEV-метод, перед "релизом" убрать
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth -> oauth
