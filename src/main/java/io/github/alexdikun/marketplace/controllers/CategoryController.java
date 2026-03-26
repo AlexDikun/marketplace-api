@@ -3,6 +3,7 @@ package io.github.alexdikun.marketplace.controllers;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Создание категории по модели")
     @ApiResponses(value = {
@@ -73,6 +75,7 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.getAllCategories(page, size), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{id}")
     @Operation(summary = "Изменение категории по ID")
     @ApiResponses(value = {
@@ -87,6 +90,7 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.updateCategory(id, request), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление категории по ID")
     @ApiResponses(value = {
