@@ -14,8 +14,6 @@ import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
 import io.github.alexdikun.marketplace.service.ImageService;
 import io.github.alexdikun.marketplace.service.security.AdvertSecurity;
-import io.github.alexdikun.marketplace.service.security.CommentSecurity;
-import io.github.alexdikun.marketplace.service.security.ImageSecurity;
 import io.github.alexdikun.marketplace.validation.OnCreate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
