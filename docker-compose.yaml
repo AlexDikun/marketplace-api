@@ -23,6 +23,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
+      - keycloak_data:/opt/keycloak/data
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json
     depends_on:
       - postgres
@@ -43,6 +44,7 @@ services:
 
 volumes:
   postgres_data:
+  keycloak_data:
 
 networks:
   app_network:
