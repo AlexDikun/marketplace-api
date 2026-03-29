@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/roles").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/auth").authenticated()
-                
+
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
             
                 .anyRequest().authenticated()
@@ -45,7 +45,7 @@ public class SecurityConfig {
 
         return http.build();
     }
-    /* 
+    
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
@@ -60,22 +60,11 @@ public class SecurityConfig {
             List<String> roles = (List<String>) realmAccess.get("roles");
 
             return roles.stream()
-                    .filter(role -> role.startsWith("ROLE_")) 
+                    .map(role -> "ROLE_" + role)   
                     .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList()); 
+                    .collect(Collectors.toList());
         });
 
-        return converter;
-    } */
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter rolesConverter = new JwtGrantedAuthoritiesConverter();
-        rolesConverter.setAuthorityPrefix("ROLE_");
-        rolesConverter.setAuthoritiesClaimName("realm_access.roles");
-
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(rolesConverter);
         return converter;
     }
 
