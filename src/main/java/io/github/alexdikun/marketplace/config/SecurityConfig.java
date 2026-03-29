@@ -23,18 +23,20 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**"
-                ).permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/api/v1/adverts/search").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/adverts/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/*").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/images/**").permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/roles").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/auth").authenticated()
+                
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+            
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth -> oauth
