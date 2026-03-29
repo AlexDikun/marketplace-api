@@ -29,7 +29,7 @@ public class CurrentUserService {
     public String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
-        return jwt.getClaim("preffered_username");
+        return jwt.getClaim("preferred_username");
     }
 
     public boolean isAdmin() {
