@@ -1,13 +1,15 @@
 package io.github.alexdikun.marketplace.controllers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,7 +91,38 @@ public class UserController {
 
     @GetMapping("/me")
     @Operation(summary = "Возвращает все данные в JWT из Keyloack. DEV-метод")
-    public Map<String, Object>  me(@AuthenticationPrincipal Jwt jwt) {
-        return jwt.getClaims();
+    public Map<String, Object> me(Authentication authentication) {
+        if (!(authentication instanceof JwtAuthenticationToken token)) {
+            return Map.of("error", "not JWT auth");
+        }
+
+        Jwt jwt = token.getToken();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("username", jwt.getClaim("preferred_username"));
+        result.put("email", jwt.getClaim("email"));
+        result.put("sub", jwt.getSubject());
+        result.put("roles", jwt.getClaim("realm_access"));
+
+        return result;
     }
+
+    @GetMapping("/roles")
+    @Operation(summary = "Возвращает роли в JWT из Keyloack. DEV-метод")
+    public Object roles(Authentication authentication) {
+        if (authentication == null)
+            return Map.of("error", "not auth");
+
+        return authentication.getAuthorities();
+    }
+
+    @GetMapping("/auth")
+    @Operation(summary = "JWT токен или нет. DEV-метод")
+    public Object auth (Authentication authentication) {
+        if (authentication == null)
+            return Map.of("error", "not auth");
+
+        return authentication;
+    }
+
 }

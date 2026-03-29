@@ -28,11 +28,13 @@ public class SecurityConfig {
                         "/v3/api-docs/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/adverts/search").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/adverts/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/adverts/*").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/categories/{id}").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/users").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/categories/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/me").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/roles").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/auth").authenticated()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth -> oauth
@@ -41,7 +43,7 @@ public class SecurityConfig {
 
         return http.build();
     }
-    
+    /* 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
@@ -61,6 +63,17 @@ public class SecurityConfig {
                     .collect(Collectors.toList()); 
         });
 
+        return converter;
+    } */
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter rolesConverter = new JwtGrantedAuthoritiesConverter();
+        rolesConverter.setAuthorityPrefix("ROLE_");
+        rolesConverter.setAuthoritiesClaimName("realm_access.roles");
+
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(rolesConverter);
         return converter;
     }
 
