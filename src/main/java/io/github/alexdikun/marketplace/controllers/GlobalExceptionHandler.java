@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import io.github.alexdikun.marketplace.exceptions.BadRequestException;
 import io.github.alexdikun.marketplace.exceptions.ConflictException;
 import io.github.alexdikun.marketplace.exceptions.NotFoundException;
+import io.github.alexdikun.marketplace.exceptions.UnauthorizedException;
 import io.github.alexdikun.marketplace.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -24,6 +25,21 @@ import jakarta.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> unauthorizedRequest(
+        UnauthorizedException exception,
+        HttpServletRequest request) {
+
+        ErrorResponse error = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.UNAUTHORIZED.value())
+            .errors(List.of(exception.getMessage()))
+            .path(request.getRequestURI())
+            .build();
+
+            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(
         BadRequestException exception,
