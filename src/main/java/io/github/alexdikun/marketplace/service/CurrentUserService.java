@@ -1,13 +1,14 @@
 package io.github.alexdikun.marketplace.service;
 
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import io.github.alexdikun.marketplace.entities.UserEntity;
-import io.github.alexdikun.marketplace.exceptions.NotFoundException;
+import io.github.alexdikun.marketplace.exceptions.UnauthorizedException;
 import io.github.alexdikun.marketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,14 +20,29 @@ public class CurrentUserService {
 
     public UserEntity getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        String username = jwt.getClaim("preffered_username");
 
-        return userRepository.findByLogin(username)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        if (authentication == null) {
+            throw new UnauthorizedException("Пользователь не авторизирован!");
+        }
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        String keycloakId = jwt.getSubject();
+        String login = jwt.getClaim("preffered_username");
+        String email = jwt.getClaim("email");
+
+        return userRepository.findByKeycloakId(keycloakId)
+                .orElseGet(() -> {
+                    UserEntity userEntity = new UserEntity();
+                    userEntity.setKeycloakId(keycloakId);
+                    userEntity.setLogin(login);
+                    userEntity.setEmail(email);
+                    return userRepository.save(userEntity);
+                });
     }
 
-    public String getCurrentUsername() {
+    // надо потом перепроверить код. Вроде, нигде не использую. Если так - удалить
+    public String getCurrentUsername() { 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
         return jwt.getClaim("preferred_username");
