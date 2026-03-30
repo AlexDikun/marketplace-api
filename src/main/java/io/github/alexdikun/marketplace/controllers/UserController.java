@@ -107,22 +107,4 @@ public class UserController {
         return result;
     }
 
-    @GetMapping("/roles")
-    @Operation(summary = "Возвращает роли в JWT из Keyloack. DEV-метод")
-    public Object roles(Authentication authentication) {
-        if (authentication == null)
-            return Map.of("error", "not auth");
-
-        return authentication.getAuthorities();
-    }
-
-    @GetMapping("/auth")
-    @Operation(summary = "JWT токен или нет. DEV-метод")
-    public Object auth (Authentication authentication) {
-        if (authentication == null)
-            return Map.of("error", "not auth");
-
-        return authentication;
-    }
-
 }
