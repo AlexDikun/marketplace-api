@@ -12,14 +12,11 @@ import io.github.alexdikun.marketplace.entities.AdvertEntity;
 import io.github.alexdikun.marketplace.entities.CategoryEntity;
 import io.github.alexdikun.marketplace.entities.CommentEntity;
 import io.github.alexdikun.marketplace.entities.ImageEntity;
-import io.github.alexdikun.marketplace.entities.RoleEntity;
 import io.github.alexdikun.marketplace.entities.UserEntity;
-import io.github.alexdikun.marketplace.enums.Role;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.CategoryRepository;
 import io.github.alexdikun.marketplace.repository.CommentRepository;
 import io.github.alexdikun.marketplace.repository.ImageRepository;
-import io.github.alexdikun.marketplace.repository.RoleRepository;
 import io.github.alexdikun.marketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DataInit implements CommandLineRunner {
 
-    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final AdvertRepository advertRepository;
@@ -40,9 +36,6 @@ public class DataInit implements CommandLineRunner {
 
         if (userRepository.count() > 0) return;
 
-        RoleEntity adminRole = roleRepository.save(new RoleEntity(Role.ROLE_ADMIN));
-        RoleEntity userRole = roleRepository.save(new RoleEntity(Role.ROLE_USER));
-
         CategoryEntity parent = categoryRepository.save(
             new CategoryEntity("Parent", null)
         );
@@ -52,12 +45,8 @@ public class DataInit implements CommandLineRunner {
             .map(categoryRepository::save)
             .toList();
 
-        UserEntity admin = userRepository.save(
-            createUser("ADMIN", "ADMIN", "12345678", adminRole)
-        );
-
         List<UserEntity> users = IntStream.rangeClosed(1, 2)
-            .mapToObj(i -> createUser("user" + i, "User " + i, "12345678", userRole))
+            .mapToObj(i -> createUser("system" + i, "systemUser " + i, "systemuser" + i + "@dikunva.su"))
             .map(userRepository::save)
             .toList();
 
@@ -93,12 +82,11 @@ public class DataInit implements CommandLineRunner {
         });
     }
 
-    private UserEntity createUser(String login, String name, String password, RoleEntity role) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setLogin(login);
-        userEntity.setName(name);
-        userEntity.setPassword(password);
-        userEntity.setRole(role);
-        return userEntity;
+    private UserEntity createUser(String keycloakId, String login, String email) {
+        UserEntity user = new UserEntity();
+        user.setKeycloakId(keycloakId);
+        user.setLogin(login);
+        user.setEmail(email);
+        return user;
     }
 }
