@@ -38,8 +38,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id, UserRequest userRequest) {
-        System.out.println("Обновление пользователя с id: " + id);
+    public UserResponse updateUser(UserRequest userRequest) {
+        System.out.println("Обновление пользователя с id: " + currentUserService.getCurrentUser().getId());
 
         UserEntity userEntity = currentUserService.getCurrentUser();
 
@@ -48,11 +48,10 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        System.out.println("Удаляем пользователя с id: " + id);
+    public void deleteUser() {
+        System.out.println("Удаляем пользователя с id: " + currentUserService.getCurrentUser().getId());
 
         UserEntity userEntity = currentUserService.getCurrentUser();
-
         userRepository.delete(userEntity);
     }
 }

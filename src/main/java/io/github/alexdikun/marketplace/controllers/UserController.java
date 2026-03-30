@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.alexdikun.marketplace.request.UserRequest;
 import io.github.alexdikun.marketplace.response.UserResponse;
 import io.github.alexdikun.marketplace.service.UserService;
-import io.github.alexdikun.marketplace.service.security.UserSecurity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,7 +38,6 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
     
     private final UserService userService;
-    private final UserSecurity userSecurity;
 
     @GetMapping
     @Operation(summary = "Получение списка всех пользователей!")
@@ -63,29 +61,28 @@ public class UserController {
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
-    @PreAuthorize("@userSecurity.isOwner(#id)")
-    @PutMapping("{id}")
-    @Operation(summary = "Обновление пользователя по ID")
+    @PutMapping("/me")
+    @Operation(summary = "Обновлениe пользователем собственных данных")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Пользователь обновлен!"),
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<UserResponse> updateUser(@PathVariable @ Positive Long id, 
+    public ResponseEntity<UserResponse> updateUser(
         @Parameter(description = "Модель для создания данных") @RequestBody UserRequest userRequest
     ) {
-        return new ResponseEntity<>(userService.updateUser(id, userRequest), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updateUser(userRequest), HttpStatus.OK);
     }
 
-    @PreAuthorize("@userSecurity.isOwner(#id)")
-    @DeleteMapping("{id}")
-    @Operation(summary = "Удаление пользователя по ID")
+    @DeleteMapping("/me")
+    @Operation(summary = "Пользователь удаляет собственную учетную запись из сервиса")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Пользователь удален"),
         @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id) {
+    public ResponseEntity<Void> deleteUser() {
+        userService.deleteUser();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
