@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByLogin(String login);
 
+    Optional<UserEntity> findByKeycloakId(String keycloackId);
+
 }
