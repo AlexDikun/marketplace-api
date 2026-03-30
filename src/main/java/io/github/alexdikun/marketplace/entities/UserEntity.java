@@ -44,8 +44,4 @@ public class UserEntity {
     @CreationTimestamp
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity role;
-
 }
