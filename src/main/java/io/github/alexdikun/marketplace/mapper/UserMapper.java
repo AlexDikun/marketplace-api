@@ -16,9 +16,13 @@ import io.github.alexdikun.marketplace.response.UserResponse;
 public interface UserMapper {
     
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "keycloakId", ignore = true)
+    @Mapping(target = "login", ignore = true)
     UserEntity toUserEntity(UserRequest userRequest);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "keycloakId", ignore = true)
+    @Mapping(target = "login", ignore = true)
     UserResponse toUserResponse(UserEntity userEntity);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

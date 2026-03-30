@@ -1,9 +1,19 @@
 package io.github.alexdikun.marketplace.request;
 
+import java.util.Map;
+
+import io.github.alexdikun.marketplace.enums.MessengerType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class UserRequest {
-    private String name;
-    private String login;
+
+    @NotBlank(message = "Отображаемое имя не должно быть пустым")
+    @Size(max = 50, message = "Отображаемое имя не может быть длиннее 50 символов")
+    private String displayName;
+
+    // нужно добавить кастомную валидацию
+    private Map<MessengerType, String> messengerLinks;
 }
