@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Map;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +47,8 @@ public class UserEntity {
     @Size(max = 50, message = "Отображаемое имя не может быть длиннее 50 символов")
     private String displayName;
 
-    @Column(name = "messenger_links", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "messenger_links")
     private Map<String, Object> messengerLinks;
 
 }
