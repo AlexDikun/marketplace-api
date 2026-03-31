@@ -50,6 +50,7 @@ public class ImageController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Void> deleteImage(@PathVariable @Positive Long id) {
+        imageService.deleteImage(id);
         return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
 }

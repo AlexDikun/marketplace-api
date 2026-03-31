@@ -99,6 +99,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
         return new ResponseEntity<>( HttpStatus.NO_CONTENT);
     }
     

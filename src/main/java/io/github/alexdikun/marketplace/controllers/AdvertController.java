@@ -111,6 +111,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Void> deleteAdvert(@PathVariable @Positive Long id) {
+        advertService.deleteAdvert(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

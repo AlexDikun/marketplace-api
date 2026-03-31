@@ -69,6 +69,7 @@ public class CommentController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Void> deleteComment(@PathVariable @Positive Long id) {
+        commentService.deleteComment(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
