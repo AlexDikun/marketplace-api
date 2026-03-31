@@ -28,7 +28,7 @@ public class CurrentUserService {
         Jwt jwt = (Jwt) authentication.getPrincipal();
 
         String keycloakId = jwt.getSubject();
-        String login = jwt.getClaim("preffered_username");
+        String login = jwt.getClaim("preferred_username");
         String email = jwt.getClaim("email");
 
         return userRepository.findByKeycloakId(keycloakId)
