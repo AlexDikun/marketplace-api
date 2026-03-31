@@ -2,7 +2,6 @@ package io.github.alexdikun.marketplace.request;
 
 import java.util.Map;
 
-import io.github.alexdikun.marketplace.enums.MessengerType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -15,5 +14,5 @@ public class UserRequest {
     private String displayName;
 
     // нужно добавить кастомную валидацию
-    private Map<MessengerType, String> messengerLinks;
+    private Map<String, Object> messengerLinks;
 }

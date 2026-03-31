@@ -3,7 +3,6 @@ package io.github.alexdikun.marketplace.response;
 import java.time.Instant;
 import java.util.Map;
 
-import io.github.alexdikun.marketplace.enums.MessengerType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,6 +11,6 @@ import lombok.Data;
 public class UserResponse {
     private String email;
     private String displayName;
-    private Map<MessengerType, String> messengerLinks;
+    private Map<String, Object> messengerLinks;
     private Instant createdAt;
 }

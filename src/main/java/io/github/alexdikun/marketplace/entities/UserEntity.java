@@ -5,8 +5,7 @@ import java.util.Map;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import io.github.alexdikun.marketplace.converter.MessengerLinksConverter;
-import io.github.alexdikun.marketplace.enums.MessengerType;
+import io.github.alexdikun.marketplace.converter.JsonMapConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -49,7 +48,6 @@ public class UserEntity {
     private String displayName;
 
     @Column(name = "messenger_links", columnDefinition = "json")
-    @Convert(converter = MessengerLinksConverter.class)
-    private Map<MessengerType, String> messengerLinks;
+    private Map<String, Object> messengerLinks;
 
 }
