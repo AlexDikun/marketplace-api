@@ -5,9 +5,7 @@ import java.util.Map;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import io.github.alexdikun.marketplace.converter.JsonMapConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
