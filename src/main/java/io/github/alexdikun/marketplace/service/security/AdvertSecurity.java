@@ -1,5 +1,6 @@
 package io.github.alexdikun.marketplace.service.security;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
@@ -20,8 +21,11 @@ public class AdvertSecurity {
         AdvertEntity advertEntity = advertRepository.findById(advertId)
             .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
 
-        return advertEntity.getUser().getId()
-            .equals(currentUserService.getCurrentUser().getId());
+        if (!advertEntity.getUser().getId().equals(currentUserService.getCurrentUser().getId())) {
+            throw new AccessDeniedException("Пользователь не является автором объявления!");
+        }
+
+        return true;
 
     }
     

@@ -1,5 +1,6 @@
 package io.github.alexdikun.marketplace.service.security;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import io.github.alexdikun.marketplace.entities.CommentEntity;
@@ -19,9 +20,11 @@ public class CommentSecurity {
         CommentEntity commentEntity = commentRepository.findById(commentId)
             .orElseThrow(() -> new NotFoundException("Комментарий не найден"));
 
-        return commentEntity.getUser().getId()
-            .equals(currentUserService.getCurrentUser().getId());
+        if (!commentEntity.getUser().getId().equals(currentUserService.getCurrentUser().getId())) {
+            throw new AccessDeniedException("Пользователь не является автором комментария!");
+        }
 
+        return true;
     }
     
 }

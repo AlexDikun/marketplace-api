@@ -1,5 +1,6 @@
 package io.github.alexdikun.marketplace.service.security;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import io.github.alexdikun.marketplace.entities.ImageEntity;
@@ -19,8 +20,11 @@ public class ImageSecurity {
         ImageEntity imageEntity = imageRepository.findById(imageId)
             .orElseThrow(() -> new NotFoundException("Изображение не найдено!"));
 
-        return imageEntity.getAdvert().getUser().getId()
-            .equals(currentUserService.getCurrentUser().getId());
+        if (!imageEntity.getAdvert().getUser().getId().equals(currentUserService.getCurrentUser().getId())) {
+            throw new AccessDeniedException("Пользователь не является автором объявления и его изображений!");
+        }
+
+        return true;
     }
     
 }

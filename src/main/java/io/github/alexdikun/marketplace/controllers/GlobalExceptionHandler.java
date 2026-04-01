@@ -41,6 +41,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> forbiddenRequest(
+        AccessDeniedException exception,
+        HttpServletRequest request) {
+
+        ErrorResponse error = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.FORBIDDEN.value())
+            .errors(List.of(exception.getMessage()))
+            .path(request.getRequestURI())
+            .build();
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(
         BadRequestException exception,
