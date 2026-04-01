@@ -1,6 +1,7 @@
 package io.github.alexdikun.marketplace.response;
 
-import io.github.alexdikun.marketplace.enums.Role;
+import java.time.Instant;
+import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,8 +9,8 @@ import lombok.Data;
 @Data
 @Builder
 public class UserResponse {
-    private Long id;
-    private String name;
-    private String login;
-    private Role role;
+    private String email;
+    private String displayName;
+    private Map<String, Object> messengerLinks;
+    private Instant createdAt;
 }

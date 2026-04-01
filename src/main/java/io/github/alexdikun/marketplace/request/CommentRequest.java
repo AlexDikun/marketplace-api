@@ -1,6 +1,5 @@
 package io.github.alexdikun.marketplace.request;
 
-import io.github.alexdikun.marketplace.validation.OnCreate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
@@ -13,9 +12,5 @@ public class CommentRequest {
 
     @Positive
     private Long parentId;
-
-    @Positive
-    @NotBlank(groups = OnCreate.class)
-    private Long userId;
     
 }

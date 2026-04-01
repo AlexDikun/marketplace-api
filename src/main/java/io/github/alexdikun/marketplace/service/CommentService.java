@@ -14,7 +14,6 @@ import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.CommentMapper;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.CommentRepository;
-import io.github.alexdikun.marketplace.repository.UserRepository;
 import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.response.CommentResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final AdvertRepository advertRepository;
 
     @Transactional
@@ -34,8 +33,7 @@ public class CommentService {
 
         CommentEntity commentEntity = commentMapper.toCommentEntity(commentRequest);
 
-        UserEntity author = userRepository.findById(commentRequest.getUserId())
-            .orElseThrow(() -> new NotFoundException("Автор комментария не найден"));
+        UserEntity author = currentUserService.getCurrentUser();
         
         AdvertEntity advert = advertRepository.findById(advertId)
                 .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
