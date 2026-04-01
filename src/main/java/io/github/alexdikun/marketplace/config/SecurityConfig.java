@@ -1,6 +1,5 @@
 package io.github.alexdikun.marketplace.config;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,8 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableMethodSecurity
@@ -43,47 +40,8 @@ public class SecurityConfig {
             )
             .oauth2ResourceServer(oauth -> oauth
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-            )
-            .exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
-
-                    response.getWriter().write("""
-                        {
-                          "timestamp": "%s",
-                          "status": 401,
-                          "error": "Unauthorized",
-                          "message": "Пользователь не авторизован",
-                          "path": "%s"
-                        }
-                        """.formatted(
-                            Instant.now(),
-                            request.getRequestURI()
-                        ));
-                })
-
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
-
-                    response.getWriter().write("""
-                        {
-                          "timestamp": "%s",
-                          "status": 403,
-                          "error": "Forbidden",
-                          "message": "Недостаточно прав",
-                          "path": "%s"
-                        }
-                        """.formatted(
-                            Instant.now(),
-                            request.getRequestURI()
-                        ));
-                })
             );
-
+            
         return http.build();
     }
     
@@ -94,7 +52,7 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
 
-            if (realmAccess == null || realmAccess.get("roles") == null) {
+            if (realmAccess == null || !realmAccess.containsKey("roles")) {
                 return List.of();
             }
 
