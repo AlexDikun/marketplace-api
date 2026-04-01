@@ -26,9 +26,6 @@ public class AdvertRequest {
     private String description;
 
     @Positive
-    private Long userId;
-
-    @Positive
     private Long categoryId;
     
 }

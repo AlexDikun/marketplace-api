@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.alexdikun.marketplace.entities.UserEntity;
-import io.github.alexdikun.marketplace.exceptions.ConflictException;
 import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.UserMapper;
 import io.github.alexdikun.marketplace.repository.UserRepository;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final UserMapper userMapper;
     
     public List<UserResponse> getAllUsers() {
@@ -38,29 +38,20 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id, UserRequest userRequest) {
-        System.out.println("Обновление пользователя с id: " + id);
+    public UserResponse updateUser(UserRequest userRequest) {
+        System.out.println("Обновление пользователя с id: " + currentUserService.getCurrentUser().getId());
 
-        UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-
-        if (userRequest.getLogin() != null &&
-            userRepository.existsByLoginAndIdNot(userRequest.getLogin(), id)) {
-
-            throw new ConflictException("Такой логин уже существует!");
-        }
+        UserEntity userEntity = currentUserService.getCurrentUser();
 
         userMapper.updateUserFromDto(userRequest, userEntity);
         return userMapper.toUserResponse(userEntity);
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        System.out.println("Удаляем пользователя с id: " + id);
+    public void deleteUser() {
+        System.out.println("Удаляем пользователя с id: " + currentUserService.getCurrentUser().getId());
 
-        UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-
+        UserEntity userEntity = currentUserService.getCurrentUser();
         userRepository.delete(userEntity);
     }
 }

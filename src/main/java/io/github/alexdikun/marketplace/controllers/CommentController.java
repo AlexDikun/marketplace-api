@@ -2,6 +2,7 @@ package io.github.alexdikun.marketplace.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.response.CommentResponse;
 import io.github.alexdikun.marketplace.service.CommentService;
+import io.github.alexdikun.marketplace.service.security.CommentSecurity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class CommentController {
 
     private final CommentService commentService;
+    private final CommentSecurity commentSecurity;
 
     @GetMapping("{id}")
     @Operation(summary = "Получение комментария по ID")
@@ -42,6 +45,7 @@ public class CommentController {
         return new ResponseEntity<>(commentService.getComment(id), HttpStatus.OK);
     }
 
+    @PreAuthorize("@commentSecurity.isOwner(#id)")
     @PutMapping("{id}")
     @Operation(summary = "Изменение комментария по ID")
     @ApiResponses(value = {
@@ -56,6 +60,7 @@ public class CommentController {
         return new ResponseEntity<>(commentService.updateComment(id, commentRequest), HttpStatus.OK);
     }
 
+    @PreAuthorize("@commentSecurity.isOwner(#id)")
     @DeleteMapping("{id}")
     @Operation(summary = "Удаление комментария по ID")
     @ApiResponses(value = {
@@ -64,6 +69,7 @@ public class CommentController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Void> deleteComment(@PathVariable @Positive Long id) {
+        commentService.deleteComment(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     

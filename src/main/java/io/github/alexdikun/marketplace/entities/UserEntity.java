@@ -1,17 +1,17 @@
 package io.github.alexdikun.marketplace.entities;
 
 import java.time.Instant;
+import java.util.Map;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -27,25 +27,28 @@ public class UserEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 50)
-    @NotBlank(message = "Имя пользователя не должно быть пустым")
-    private String name;
+    @Column(name = "keycloak_id", unique = true, nullable = false)
+    @NotBlank(message = "Кейлок-идентификатор не должно быть пустым")
+    private String keycloakId;
+
+    @Column(name = "email", nullable = false, length = 50)
+    @NotBlank(message = "Имейл не должно быть пустым")
+    private String email;
 
     @Column(name = "login", unique = true, nullable = false, length = 16)
     @NotBlank(message = "Логин не должен быть пустым")
     private String login;
 
-    @Column(name = "password", nullable = false)
-    @Size(min = 8, message = "Слишком короткий пароль")
-    @NotBlank(message = "Пароль не должен быть пустым")
-    private String password;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity role;
+    @Column(name = "display_name", length = 50)
+    @Size(max = 50, message = "Отображаемое имя не может быть длиннее 50 символов")
+    private String displayName;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "messenger_links")
+    private Map<String, Object> messengerLinks;
 
 }

@@ -5,9 +5,9 @@ spring:
   application:
     name: marketplace-api
   datasource:
-    url: jdbc:postgresql://localhost:5432/marketplace_db
-    username: student
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/marketplace_db} 
+    username: ${SPRING_DATASOURCE_USERNAME:student} 
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true
@@ -28,6 +28,12 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI:http://keycloak:8080/realms/marketplace}
+          
 storage:
   upload-dir: ./uploads
 

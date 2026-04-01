@@ -13,7 +13,6 @@ import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.AdvertMapper;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.CategoryRepository;
-import io.github.alexdikun.marketplace.repository.UserRepository;
 import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 public class AdvertService {
 
     private final AdvertRepository advertRepository;
-    private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final AdvertMapper advertMapper;
+    private final CurrentUserService currentUserService;
 
     @Transactional
     public AdvertResponse createAdvert(AdvertRequest advertRequest) {
@@ -33,13 +32,12 @@ public class AdvertService {
 
         AdvertEntity advert = advertMapper.toAdvertEntity(advertRequest);
 
-        UserEntity user = userRepository.findById(advertRequest.getUserId())
-            .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        UserEntity currentUser = currentUserService.getCurrentUser();
         
         CategoryEntity category = categoryRepository.findById(advertRequest.getCategoryId())
             .orElseThrow(() -> new NotFoundException("Категория не найдена"));
 
-        advert.setUser(user);
+        advert.setUser(currentUser);
         advert.setCategory(category);
 
         AdvertEntity savedAdvert = advertRepository.save(advert);

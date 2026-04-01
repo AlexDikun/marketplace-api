@@ -1,9 +1,15 @@
 package io.github.alexdikun.marketplace.controllers;
 
+import io.github.alexdikun.marketplace.service.CurrentUserService;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "User", description = "API пользователей")
 public class UserController {
     
+    private final CurrentUserService currentUserService;
     private final UserService userService;
 
     @GetMapping
@@ -55,27 +62,60 @@ public class UserController {
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
-    @PutMapping("{id}")
-    @Operation(summary = "Обновление пользователя по ID")
+    @PutMapping("/me")
+    @Operation(summary = "Обновлениe пользователем собственных данных")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Пользователь обновлен!"),
         @ApiResponse(responseCode = "400", description = "Неверно переданные данные"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<UserResponse> updateUser(@PathVariable @ Positive Long id, 
+    public ResponseEntity<UserResponse> updateUser(
         @Parameter(description = "Модель для создания данных") @RequestBody UserRequest userRequest
     ) {
-        return new ResponseEntity<>(userService.updateUser(id, userRequest), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updateUser(userRequest), HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
-    @Operation(summary = "Удаление пользователя по ID")
+    @DeleteMapping("/me")
+    @Operation(summary = "Пользователь удаляет собственную учетную запись из сервиса")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Пользователь удален"),
         @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Void> deleteUser(@PathVariable @Positive Long id) {
+    public ResponseEntity<Void> deleteUser() {
+        userService.deleteUser();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/roles")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Роли получены"),
+        @ApiResponse(responseCode = "401", description = "Пользователь не авторизирован"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    @Operation(summary = "Пользователь чекает свою служебную роль")
+    public ResponseEntity<List<String>> getRoles(Authentication authentication) {
+        return new ResponseEntity<>(currentUserService.getRoles(authentication), HttpStatus.OK);
+    }
+
+    /* // Служебный ендпоинт
+    @GetMapping("/me")
+    @Operation(summary = "Возвращает все данные в JWT из Keyloack. DEV-метод")
+    public Map<String, Object> me(Authentication authentication) {
+        if (!(authentication instanceof JwtAuthenticationToken token)) {
+            return Map.of("error", "not JWT auth");
+        }
+
+        Jwt jwt = token.getToken();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("username", jwt.getClaim("preferred_username"));
+        result.put("email", jwt.getClaim("email"));
+        result.put("sub", jwt.getSubject());
+        result.put("roles", jwt.getClaim("realm_access"));
+
+        return result;
+    }
+    */
+
 }

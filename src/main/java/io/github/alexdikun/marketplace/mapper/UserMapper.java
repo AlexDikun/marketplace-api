@@ -16,14 +16,12 @@ import io.github.alexdikun.marketplace.response.UserResponse;
 public interface UserMapper {
     
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "keycloakId", ignore = true)
+    @Mapping(target = "login", ignore = true)
     UserEntity toUserEntity(UserRequest userRequest);
 
-    @Mapping(target = "role", source = "role.name")
     UserResponse toUserResponse(UserEntity userEntity);
 
-    @Mapping(target = "role", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUserFromDto(UserRequest dto, @MappingTarget UserEntity userEntity);
 
