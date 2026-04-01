@@ -1,5 +1,6 @@
 package io.github.alexdikun.marketplace.controllers;
 
+import io.github.alexdikun.marketplace.service.CurrentUserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "User", description = "API пользователей")
 public class UserController {
     
+    private final CurrentUserService currentUserService;
     private final UserService userService;
 
     @GetMapping
@@ -85,6 +87,18 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/roles")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Роли получены"),
+        @ApiResponse(responseCode = "401", description = "Пользователь не авторизирован"),
+        @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
+    })
+    @Operation(summary = "Пользователь чекает свою служебную роль")
+    public ResponseEntity<List<String>> getRoles(Authentication authentication) {
+        return new ResponseEntity<>(currentUserService.getRoles(authentication), HttpStatus.OK);
+    }
+
+    /* // Служебный ендпоинт
     @GetMapping("/me")
     @Operation(summary = "Возвращает все данные в JWT из Keyloack. DEV-метод")
     public Map<String, Object> me(Authentication authentication) {
@@ -102,5 +116,6 @@ public class UserController {
 
         return result;
     }
+    */
 
 }

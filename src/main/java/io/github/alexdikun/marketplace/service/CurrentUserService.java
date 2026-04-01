@@ -1,7 +1,12 @@
 package io.github.alexdikun.marketplace.service;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -37,6 +42,21 @@ public class CurrentUserService {
                     userEntity.setEmail(email);
                     return userRepository.save(userEntity);
                 });
+    }
+
+    public List<String> getRoles(Authentication authentication) {
+        if (authentication == null) {
+            throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
+        }
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+        List<String> roles = authorities.stream()
+            .map(GrantedAuthority::getAuthority)
+            .filter(role -> role.equals("ROLE_USER"))
+            .collect(Collectors.toList());
+
+        return roles;
     }
 
     public boolean isAdmin() {
