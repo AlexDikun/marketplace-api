@@ -1,7 +1,5 @@
 package io.github.alexdikun.marketplace.service;
 
-
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -39,13 +37,6 @@ public class CurrentUserService {
                     userEntity.setEmail(email);
                     return userRepository.save(userEntity);
                 });
-    }
-
-    // надо потом перепроверить код. Вроде, нигде не использую. Если так - удалить
-    public String getCurrentUsername() { 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        return jwt.getClaim("preferred_username");
     }
 
     public boolean isAdmin() {
