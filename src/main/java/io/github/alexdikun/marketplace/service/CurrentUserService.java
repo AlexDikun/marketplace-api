@@ -1,12 +1,12 @@
 package io.github.alexdikun.marketplace.service;
 
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import io.github.alexdikun.marketplace.entities.UserEntity;
-import io.github.alexdikun.marketplace.exceptions.UnauthorizedException;
 import io.github.alexdikun.marketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ public class CurrentUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
-            throw new UnauthorizedException("Пользователь не авторизирован!");
+            throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
         Jwt jwt = (Jwt) authentication.getPrincipal();
