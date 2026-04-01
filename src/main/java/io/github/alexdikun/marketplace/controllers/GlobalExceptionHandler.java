@@ -3,12 +3,13 @@ package io.github.alexdikun.marketplace.controllers;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.security.sasl.AuthenticationException;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,9 +27,9 @@ import jakarta.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
-    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> unauthorizedRequest(
-        AuthenticationCredentialsNotFoundException  exception,
+        AuthenticationException exception,
         HttpServletRequest request) {
 
         ErrorResponse error = ErrorResponse.builder()
