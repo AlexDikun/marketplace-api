@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import io.github.alexdikun.marketplace.entities.UserEntity;
 import io.github.alexdikun.marketplace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CurrentUserService {
@@ -22,9 +24,12 @@ public class CurrentUserService {
     private final UserRepository userRepository;
 
     public UserEntity getCurrentUser() {
+        log.info("Получаем авторизованного пользователя!");
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
+            log.debug("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
@@ -36,6 +41,7 @@ public class CurrentUserService {
 
         return userRepository.findByKeycloakId(keycloakId)
                 .orElseGet(() -> {
+                    log.debug("Пользователь впервые посетил мой маркетплейс! Регистрируем его в системе...");
                     UserEntity userEntity = new UserEntity();
                     userEntity.setKeycloakId(keycloakId);
                     userEntity.setLogin(login);
@@ -46,6 +52,7 @@ public class CurrentUserService {
 
     public List<String> getRoles(Authentication authentication) {
         if (authentication == null) {
+            log.debug("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
