@@ -47,9 +47,7 @@ public class AdvertService {
         advert.setCategory(category);
 
         AdvertEntity savedAdvert = advertRepository.save(advert);
-
         log.info("Объявление создано. advertId = {}", savedAdvert.getId());
-
         return advertMapper.toAdvertResponse(savedAdvert);
     }
 
@@ -88,9 +86,7 @@ public class AdvertService {
             });
 
         advertMapper.updateAdvertFromDto(advertRequest, advert);
-
         log.info("Объявление обновлено. advertId = {}", advert.getId());
-
         return advertMapper.toAdvertResponse(advert);
     }
 

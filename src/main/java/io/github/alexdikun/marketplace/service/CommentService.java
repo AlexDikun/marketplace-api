@@ -61,9 +61,7 @@ public class CommentService {
         commentEntity.setAdvert(advert);
 
         CommentEntity savedComment = commentRepository.save(commentEntity);
-
         log.info("Комментарий добавлен. commentId = {}", savedComment.getId());
-
         return commentMapper.toCommentResponse(savedComment);
     }
 
@@ -123,11 +121,8 @@ public class CommentService {
         }
 
         commentMapper.updateCommentFromDto(commentRequest, commentEntity);
-
         log.info("Комментарий обновлен. commentId = {}", commentEntity.getId());
-
         return commentMapper.toCommentResponse(commentEntity);
-
     }
 
     @Transactional
