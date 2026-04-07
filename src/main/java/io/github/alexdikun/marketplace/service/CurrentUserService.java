@@ -75,7 +75,7 @@ public class CurrentUserService {
 
     @Transactional
     public UserResponse updateUser(UserRequest userRequest) {
-        log.info("Обновление пользователя с id: " + getCurrentUser().getId());
+        log.info("Обновление пользователя. userId = {}", getCurrentUser().getId());
 
         UserEntity userEntity = getCurrentUser();
 
@@ -85,7 +85,7 @@ public class CurrentUserService {
 
     @Transactional
     public void deleteUser() {
-        log.info("Удаляем пользователя с id: " + getCurrentUser().getId());
+        log.info("Удаляем пользователя. userId = {}", getCurrentUser().getId());
 
         UserEntity userEntity = getCurrentUser();
         userRepository.delete(userEntity);
