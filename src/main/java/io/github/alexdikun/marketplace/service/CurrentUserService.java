@@ -34,7 +34,7 @@ public class CurrentUserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
-            log.debug("Пользователь не авторизирован!");
+            log.warn("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
@@ -59,7 +59,7 @@ public class CurrentUserService {
         log.info("Получаем роли авторизованного пользователя!");
 
         if (authentication == null) {
-            log.debug("Пользователь не авторизирован!");
+            log.warn("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
