@@ -16,7 +16,9 @@ import io.github.alexdikun.marketplace.repository.CategoryRepository;
 import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdvertService {
@@ -28,57 +30,79 @@ public class AdvertService {
 
     @Transactional
     public AdvertResponse createAdvert(AdvertRequest advertRequest) {
-        System.out.println("Cоздаем объявление!");
+        log.info("Cоздаем объявление. userId={}", 
+            currentUserService.getCurrentUser().getId());
 
         AdvertEntity advert = advertMapper.toAdvertEntity(advertRequest);
 
         UserEntity currentUser = currentUserService.getCurrentUser();
         
         CategoryEntity category = categoryRepository.findById(advertRequest.getCategoryId())
-            .orElseThrow(() -> new NotFoundException("Категория не найдена"));
+            .orElseThrow(() -> {
+                log.warn("Категория не найдена. categoryId = {}", advertRequest.getCategoryId());
+                return new NotFoundException("Категория не найдена");
+            });
 
         advert.setUser(currentUser);
         advert.setCategory(category);
 
         AdvertEntity savedAdvert = advertRepository.save(advert);
 
+        log.info("Объявление создано. advertId = {}", savedAdvert.getId());
+
         return advertMapper.toAdvertResponse(savedAdvert);
     }
 
     public Page<AdvertResponse> searchAdverts(String query, int page, int size) {
-        System.out.println("Получаем список объявлений по поисковому запросу!");
+        log.info("Получаем список объявлений по поисковому запросу!");
 
         Pageable pageable = PageRequest.of(page, size);
         Page<AdvertEntity> advertPage = advertRepository.search(query, pageable);
+
+        log.info("Распечатано объявлений на текущей странице = {} ", 
+            advertPage.getNumberOfElements());
+
         return advertPage.map(advertMapper::toAdvertResponse);
     }
 
     public AdvertResponse getAdvert(Long id) {
-        System.out.println("Получаем объявление по id: " + id);
+        log.info("Получаем объявление. advertId = {} ", id);
 
         AdvertEntity advert = advertRepository.findWithDetailsById(id)
-            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+            .orElseThrow(() -> { 
+                log.warn("Объявление не найдено. advertId = {}", id);
+                return new NotFoundException("Объявление не найдено");
+            });
         
         return advertMapper.toAdvertResponse(advert);
     }
 
     @Transactional
     public AdvertResponse updateAdvert(Long id, AdvertRequest advertRequest) {
-        System.out.println("Изменение объявления с id: " + id);
+        log.info("Изменение объявления. advertId = {} ", id);
 
         AdvertEntity advert = advertRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+            .orElseThrow(() -> {
+                log.warn("Объявление не найдено. advertId = {}", id);
+                return new NotFoundException("Объявление не найдено");
+            });
 
         advertMapper.updateAdvertFromDto(advertRequest, advert);
+
+        log.info("Объявление обновлено. advertId = {}", advert.getId());
+
         return advertMapper.toAdvertResponse(advert);
     }
 
     @Transactional
     public void deleteAdvert(Long id) {
-        System.out.println("Удаляем объявление с id: " + id);
+        log.info("Удаление объявления. advertId = {} ", id);
 
         AdvertEntity advert = advertRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+            .orElseThrow(() -> {
+                log.warn("Объявление не найдено. advertId = {}", id);
+                return new NotFoundException("Объявление не найдено");
+            });
 
         advertRepository.delete(advert);
     }
