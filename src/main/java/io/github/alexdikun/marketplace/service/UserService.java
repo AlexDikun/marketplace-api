@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final CurrentUserService currentUserService;
     private final UserMapper userMapper;
     
     public List<UserResponse> getAllUsers() {
@@ -37,21 +36,4 @@ public class UserService {
         return userMapper.toUserResponse(userEntity);
     }
 
-    @Transactional
-    public UserResponse updateUser(UserRequest userRequest) {
-        System.out.println("Обновление пользователя с id: " + currentUserService.getCurrentUser().getId());
-
-        UserEntity userEntity = currentUserService.getCurrentUser();
-
-        userMapper.updateUserFromDto(userRequest, userEntity);
-        return userMapper.toUserResponse(userEntity);
-    }
-
-    @Transactional
-    public void deleteUser() {
-        System.out.println("Удаляем пользователя с id: " + currentUserService.getCurrentUser().getId());
-
-        UserEntity userEntity = currentUserService.getCurrentUser();
-        userRepository.delete(userEntity);
-    }
 }
