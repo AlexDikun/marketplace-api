@@ -71,11 +71,6 @@ public class CurrentUserService {
         return roles;
     }
 
-    public boolean isAdmin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-    }
-
     @Transactional
     public UserResponse updateUser(UserRequest userRequest) {
         log.info("Обновление пользователя с id: " + getCurrentUser().getId());
