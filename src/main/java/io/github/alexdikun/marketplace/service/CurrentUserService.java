@@ -56,6 +56,8 @@ public class CurrentUserService {
     }
 
     public List<String> getRoles(Authentication authentication) {
+        log.info("Получаем роли авторизованного пользователя!");
+
         if (authentication == null) {
             log.debug("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
