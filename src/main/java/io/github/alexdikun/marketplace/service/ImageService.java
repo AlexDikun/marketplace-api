@@ -12,7 +12,9 @@ import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.repository.ImageRepository;
 import io.github.alexdikun.marketplace.response.ImageResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageService {
@@ -24,10 +26,14 @@ public class ImageService {
 
     @Transactional
     public ImageResponse uploadImage(Long advertId, MultipartFile file) {
-        System.out.println("Добавляем изображение к объявлению!");
+        log.info("Добавляем изображение к объявлению. advertId = {}", advertId);
 
         AdvertEntity advert = advertRepository.findById(advertId)
-            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+            .orElseThrow(() -> {
+                log.warn("Объявление не найдено. advertId = {}", advertId);
+                return new NotFoundException("Объявление не найдено");
+            });
+
         String filename = fileStorageService.saveFile(file);
 
         ImageEntity imageEntity = new ImageEntity();
@@ -35,24 +41,31 @@ public class ImageService {
         imageEntity.setAdvert(advert);
 
         ImageEntity savedImage = imageRepository.save(imageEntity);
+        log.info("Изображение добавлено. imageId = {}", savedImage.getId());
         return imageMapper.toImageResponse(savedImage);
     }
 
     public ImageResponse getImage(Long id) {
-        System.out.println("Получаем изображение по id: " + id);
+        log.info("Получаем изображение. imageId = {}", id);
 
         ImageEntity imageEntity = imageRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Изображение не найдено"));
+            .orElseThrow(() -> {
+                log.warn("Изображение не найдено. imageId = {}", id);
+                return new NotFoundException("Изображение не найдено");
+            });
 
         return imageMapper.toImageResponse(imageEntity);
     }
 
     @Transactional
     public void deleteImage(Long id) {
-        System.out.println("В объявлении, удаляем изображение с id: " + id);
+        log.info("Удаляем изображение. imageId = {}", id);
 
         ImageEntity imageEntity = imageRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Изображение не найдено"));
+            .orElseThrow(() -> {
+                log.warn("Изображение не найдено. imageId = {}", id);
+                return new NotFoundException("Изображение не найдено");
+            });
 
         fileStorageService.deleteFile(imageEntity.getUrl());
         imageRepository.delete(imageEntity);

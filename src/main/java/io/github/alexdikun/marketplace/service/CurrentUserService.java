@@ -10,21 +10,31 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.github.alexdikun.marketplace.entities.UserEntity;
+import io.github.alexdikun.marketplace.mapper.UserMapper;
 import io.github.alexdikun.marketplace.repository.UserRepository;
+import io.github.alexdikun.marketplace.request.UserRequest;
+import io.github.alexdikun.marketplace.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CurrentUserService {
     
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public UserEntity getCurrentUser() {
+        log.info("Получаем авторизованного пользователя!");
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
+            log.warn("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
@@ -36,6 +46,7 @@ public class CurrentUserService {
 
         return userRepository.findByKeycloakId(keycloakId)
                 .orElseGet(() -> {
+                    log.debug("Пользователь впервые посетил мой маркетплейс! Регистрируем его в моей БД...");
                     UserEntity userEntity = new UserEntity();
                     userEntity.setKeycloakId(keycloakId);
                     userEntity.setLogin(login);
@@ -45,7 +56,10 @@ public class CurrentUserService {
     }
 
     public List<String> getRoles(Authentication authentication) {
+        log.info("Получаем роли авторизованного пользователя!");
+
         if (authentication == null) {
+            log.warn("Пользователь не авторизирован!");
             throw new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!");
         }
 
@@ -59,9 +73,22 @@ public class CurrentUserService {
         return roles;
     }
 
-    public boolean isAdmin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    @Transactional
+    public UserResponse updateUser(UserRequest userRequest) {
+        log.info("Обновление пользователя. userId = {}", getCurrentUser().getId());
+
+        UserEntity userEntity = getCurrentUser();
+
+        userMapper.updateUserFromDto(userRequest, userEntity);
+        return userMapper.toUserResponse(userEntity);
+    }
+
+    @Transactional
+    public void deleteUser() {
+        log.info("Удаляем пользователя. userId = {}", getCurrentUser().getId());
+
+        UserEntity userEntity = getCurrentUser();
+        userRepository.delete(userEntity);
     }
 
 }

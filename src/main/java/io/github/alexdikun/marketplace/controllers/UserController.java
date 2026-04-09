@@ -72,7 +72,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(
         @Parameter(description = "Модель для создания данных") @RequestBody UserRequest userRequest
     ) {
-        return new ResponseEntity<>(userService.updateUser(userRequest), HttpStatus.OK);
+        return new ResponseEntity<>(currentUserService.updateUser(userRequest), HttpStatus.OK);
     }
 
     @DeleteMapping("/me")
@@ -83,7 +83,7 @@ public class UserController {
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
     public ResponseEntity<Void> deleteUser() {
-        userService.deleteUser();
+        currentUserService.deleteUser();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
