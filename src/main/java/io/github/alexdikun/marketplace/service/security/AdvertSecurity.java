@@ -8,7 +8,9 @@ import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.repository.AdvertRepository;
 import io.github.alexdikun.marketplace.service.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AdvertSecurity {
@@ -18,10 +20,18 @@ public class AdvertSecurity {
     private final CurrentUserService currentUserService;
 
     public boolean isOwner(Long advertId) {
+        log.info("Проверка полномочий пользователя на операцию c объявлением. advertId = {}", advertId);
+
         AdvertEntity advertEntity = advertRepository.findById(advertId)
-            .orElseThrow(() -> new NotFoundException("Объявление не найдено"));
+            .orElseThrow(() -> {
+                log.warn("Объявление не найдено. advertId = {}", advertId);
+                return new NotFoundException("Объявление не найдено");
+            });
 
         if (!advertEntity.getUser().getId().equals(currentUserService.getCurrentUser().getId())) {
+            log.warn("Пользователь не является автором объявления! userId = {}",
+                currentUserService.getCurrentUser().getId());
+
             throw new AccessDeniedException("Пользователь не является автором объявления!");
         }
 

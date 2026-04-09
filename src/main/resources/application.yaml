@@ -17,6 +17,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
        
   web:
@@ -39,5 +40,9 @@ storage:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    root: INFO
+    org.springframework: INFO
+    org.springframework.security: DEBUG
+    org.hibernate.orm.jdbc.statements: INFO
+  pattern:
+    console:  "%d{yyyy-MM-dd HH:mm:ss} [%thread] %highlight(%-5level) %cyan(%logger{36}) %msg%n"
