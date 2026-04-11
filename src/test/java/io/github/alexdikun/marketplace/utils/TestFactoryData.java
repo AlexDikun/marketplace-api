@@ -10,6 +10,10 @@ import io.github.alexdikun.marketplace.entities.CategoryEntity;
 import io.github.alexdikun.marketplace.entities.CommentEntity;
 import io.github.alexdikun.marketplace.entities.ImageEntity;
 import io.github.alexdikun.marketplace.entities.UserEntity;
+import io.github.alexdikun.marketplace.request.AdvertRequest;
+import io.github.alexdikun.marketplace.request.CategoryRequest;
+import io.github.alexdikun.marketplace.request.CommentRequest;
+import io.github.alexdikun.marketplace.request.UserRequest;
 import net.datafaker.Faker;
 
 public class TestFactoryData {
@@ -85,6 +89,47 @@ public class TestFactoryData {
         }
 
         return imageEntity;
+    }
+
+    public static AdvertRequest createAdvertRequest(CategoryEntity category) {
+        AdvertRequest advertRequest = new AdvertRequest();
+        advertRequest.setTitle(faker.commerce().productName());
+        advertRequest.setCost(BigDecimal.valueOf(
+            faker.number().randomDouble(2, 0L, 1000000L)));
+        advertRequest.setAddress(faker.address().fullAddress());
+        advertRequest.setPhone(faker.phoneNumber().phoneNumber());
+        advertRequest.setDescription(faker.lorem().paragraph(3)); 
+        advertRequest.setCategoryId(category.getId());
+
+        return advertRequest;
+    }
+    
+    public static CategoryRequest createCategoryRequest(CategoryEntity parentCategory) {
+        CategoryRequest categoryRequest = new CategoryRequest();
+        categoryRequest.setName(faker.commerce().department());
+        categoryRequest.setParentId(parentCategory.getId());
+        
+        return categoryRequest;
+    }
+
+    public static CommentRequest createCommentRequest(CommentEntity parentComment) {
+        CommentRequest commentRequest = new CommentRequest();
+        commentRequest.setContent(faker.lorem().sentence(3));
+        commentRequest.setParentId(parentComment.getId());
+
+        return commentRequest;
+    }
+
+    public static UserRequest createUserRequest() {
+        UserRequest userRequest = new UserRequest();
+        userRequest.setDisplayName(faker.name().fullName());
+
+        Map<String, Object> messengerLinks = new HashMap<>();
+        messengerLinks.put("telegram", faker.internet().url());
+        messengerLinks.put("max", faker.phoneNumber().phoneNumber());
+        userRequest.setMessengerLinks(messengerLinks);
+
+        return userRequest;
     }
 
 }
