@@ -2,7 +2,9 @@ package io.github.alexdikun.marketplace.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -35,31 +37,29 @@ import io.github.alexdikun.marketplace.response.UserResponse;
 import io.github.alexdikun.marketplace.utils.TestFactoryData;
 
 @ExtendWith(MockitoExtension.class)
-public class CurrentUserServiceTest {
+class CurrentUserServiceTest {
+
     @Mock
     private UserRepository userRepository;
 
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private Authentication authentication;
+
+    @Mock
+    private Jwt jwt;
+
     @InjectMocks
     private CurrentUserService currentUserService;
 
     private SecurityContext securityContext;
-    private Authentication authentication;
-    private Jwt jwt;
-    private UserEntity existingUser;
 
     @BeforeEach
     void setUp() {
         securityContext = mock(SecurityContext.class);
-        authentication = mock(Authentication.class);
-        jwt = mock(Jwt.class);
-        existingUser = TestFactoryData.createUser();
-
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getPrincipal()).thenReturn(jwt);
     }
 
     @AfterEach
@@ -67,84 +67,81 @@ public class CurrentUserServiceTest {
         SecurityContextHolder.clearContext();
     }
 
-
     @Test
     void getCurrentUserShouldReturnExistingUser() {
-        when(jwt.getSubject()).thenReturn("keycloak-123");
-        when(jwt.getClaim("preferred_username")).thenReturn("testuser");
+        UserEntity existingUser = TestFactoryData.createUser();
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(jwt);
+
+        when(jwt.getSubject()).thenReturn("id-123");
+        when(jwt.getClaim("preferred_username")).thenReturn("user");
         when(jwt.getClaim("email")).thenReturn("user@test.com");
 
-        when(userRepository.findByKeycloakId("keycloak-123"))
+        when(userRepository.findByKeycloakId("id-123"))
             .thenReturn(Optional.of(existingUser));
 
         UserEntity result = currentUserService.getCurrentUser();
 
-        verify(userRepository).findByKeycloakId("keycloak-123");
-        verify(userRepository, never()).save(any(UserEntity.class));
         assertThat(result).isEqualTo(existingUser);
+        verify(userRepository, never()).save(any());
     }
 
     @Test
-    void getCurrentUserShouldCreateNewUser() {
-        String keycloakId = "keycloak-456";
-        String login = "newuser";
-        String email = "new@test.com";
+    void getCurrentUserShouldCreateUser() {
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(jwt);
 
-        when(jwt.getSubject()).thenReturn(keycloakId);
-        when(jwt.getClaim("preferred_username")).thenReturn(login);
-        when(jwt.getClaim("email")).thenReturn(email);
+        when(jwt.getSubject()).thenReturn("id-456");
+        when(jwt.getClaim("preferred_username")).thenReturn("newuser");
+        when(jwt.getClaim("email")).thenReturn("new@test.com");
 
-        when(userRepository.findByKeycloakId(keycloakId)).thenReturn(Optional.empty());
+        when(userRepository.findByKeycloakId("id-456"))
+            .thenReturn(Optional.empty());
 
-        UserEntity savedUser = new UserEntity();
-        savedUser.setId(1L);
-        savedUser.setKeycloakId(keycloakId);
-        when(userRepository.save(any(UserEntity.class))).thenReturn(savedUser);
+        when(userRepository.save(any(UserEntity.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
 
         UserEntity result = currentUserService.getCurrentUser();
 
-        verify(userRepository).findByKeycloakId(keycloakId);
-        verify(userRepository).save(any(UserEntity.class));
-
-        assertThat(result.getKeycloakId()).isEqualTo(keycloakId);
-        assertThat(result.getLogin()).isEqualTo(login);
-        assertThat(result.getEmail()).isEqualTo(email);
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getKeycloakId()).isEqualTo("id-456");
+        assertThat(result.getLogin()).isEqualTo("newuser");
+        assertThat(result.getEmail()).isEqualTo("new@test.com");
     }
 
     @Test
-    void getCurrentUserShouldThrowWhenUnauthenticated() {
+    void getCurrentUserShouldThrowWhenNoAuth() {
         when(securityContext.getAuthentication()).thenReturn(null);
 
-        assertThatThrownBy(() -> currentUserService.getCurrentUser())
-            .isInstanceOf(AuthenticationCredentialsNotFoundException.class)
-            .hasMessage("Пользователь не авторизирован!");
+        AuthenticationCredentialsNotFoundException exception = assertThrows(
+            AuthenticationCredentialsNotFoundException.class, () -> {
+                currentUserService.getCurrentUser();
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Пользователь не авторизирован!");
     }
 
     @Test
     void getRolesShouldReturnUserRole() {
-        Collection<? extends GrantedAuthority> authorities = List.<GrantedAuthority>of( 
+        List<GrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority("ROLE_USER"),
             new SimpleGrantedAuthority("ROLE_ADMIN")
         );
 
-        when(authentication.getAuthorities()).thenReturn(any());
+        doReturn(authorities).when(authentication).getAuthorities();
 
         List<String> roles = currentUserService.getRoles(authentication);
 
-        verify(authentication).getAuthorities();
         assertThat(roles).containsExactly("ROLE_USER");
     }
 
     @Test
-    void getRolesShouldReturnEmptyListWhenNoUserRole() {
-        Collection<? extends GrantedAuthority> authorities = List.<GrantedAuthority>of(
-            new SimpleGrantedAuthority("ROLE_ADMIN"),
-            new SimpleGrantedAuthority("ROLE_MODERATOR")
+    void getRolesShouldReturnEmptyList() {
+        List<GrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("ROLE_ADMIN")
         );
 
-        
-        when(authentication.getAuthorities()).thenReturn(any());
+        doReturn(authorities).when(authentication).getAuthorities();
 
         List<String> roles = currentUserService.getRoles(authentication);
 
@@ -152,55 +149,79 @@ public class CurrentUserServiceTest {
     }
 
     @Test
-    void getRolesShouldThrowWhenUnauthenticated() {
-        assertThatThrownBy(() -> currentUserService.getRoles(null))
-            .isInstanceOf(AuthenticationCredentialsNotFoundException.class)
-            .hasMessage("Пользователь не авторизирован!");
+    void getRolesShouldThrowWhenNull() {
+        AuthenticationCredentialsNotFoundException exception = assertThrows(
+            AuthenticationCredentialsNotFoundException.class, () -> {
+                currentUserService.getRoles(null);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Пользователь не авторизирован!");
     }
 
     @Test
     void updateUserShouldUpdateSuccessfully() {
-        UserRequest userRequest = new UserRequest();
-        userRequest.setDisplayName("Новое имя");
+        UserRequest request = TestFactoryData.createUserRequest();
 
-        UserEntity currentUser = TestFactoryData.createUser();
-        currentUser.setId(1L);
+        UserEntity user = TestFactoryData.createUser();
 
-        UserResponse expectedResponse = UserResponse.builder()
-            .displayName("Новое имя")
-            .build();
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(jwt);
 
-        when(currentUserService.getCurrentUser()).thenReturn(currentUser);
-        when(userMapper.toUserResponse(currentUser)).thenReturn(expectedResponse);
+        when(jwt.getSubject()).thenReturn(user.getKeycloakId());
+        when(jwt.getClaim("preferred_username")).thenReturn(user.getLogin());
+        when(jwt.getClaim("email")).thenReturn(user.getEmail());
 
-        UserResponse response = currentUserService.updateUser(userRequest);
+        when(userRepository.findByKeycloakId(user.getKeycloakId()))
+            .thenReturn(Optional.of(user));
 
-        verify(userMapper).updateUserFromDto(userRequest, currentUser);
-        verify(userMapper).toUserResponse(currentUser);
-        assertThat(response).isEqualTo(expectedResponse);
+        UserResponse response = UserResponse.builder().build();
+        when(userMapper.toUserResponse(user)).thenReturn(response);
+
+        UserResponse result = currentUserService.updateUser(request);
+
+        verify(userMapper).updateUserFromDto(request, user);
+        assertThat(result).isEqualTo(response);
+    }
+
+    @Test
+    void updateUserShouldThrowWhenUnauthenticated() {
+        UserRequest updateUserRequest = TestFactoryData.createUserRequest();
+
+        AuthenticationCredentialsNotFoundException exception = assertThrows(
+            AuthenticationCredentialsNotFoundException.class, () -> {
+                currentUserService.updateUser(updateUserRequest);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Пользователь не авторизирован!");
     }
 
     @Test
     void deleteUserShouldDeleteSuccessfully() {
-        UserEntity userToDelete = TestFactoryData.createUser();
-        userToDelete.setId(1L);
-        when(currentUserService.getCurrentUser()).thenReturn(userToDelete);
+        UserEntity user = TestFactoryData.createUser();
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getPrincipal()).thenReturn(jwt);
+
+        when(jwt.getSubject()).thenReturn(user.getKeycloakId());
+        when(jwt.getClaim("preferred_username")).thenReturn(user.getLogin());
+        when(jwt.getClaim("email")).thenReturn(user.getEmail());
+
+        when(userRepository.findByKeycloakId(user.getKeycloakId()))
+            .thenReturn(Optional.of(user));
 
         currentUserService.deleteUser();
 
-        verify(currentUserService).getCurrentUser();
-        verify(userRepository).delete(userToDelete);
+        verify(userRepository).delete(user);
     }
 
     @Test
     void deleteUserShouldThrowWhenUnauthenticated() {
-        when(currentUserService.getCurrentUser()).thenThrow(
-            new AuthenticationCredentialsNotFoundException("Пользователь не авторизирован!")
-        );
+        AuthenticationCredentialsNotFoundException exception = assertThrows(
+            AuthenticationCredentialsNotFoundException.class, () -> {
+                currentUserService.deleteUser();
+        });
 
-        assertThatThrownBy(() -> currentUserService.deleteUser())
-            .isInstanceOf(AuthenticationCredentialsNotFoundException.class)
-            .hasMessage("Пользователь не авторизирован!");
+        assertThat(exception.getMessage()).isEqualTo("Пользователь не авторизирован!");
     }
 
 }
