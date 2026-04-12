@@ -2,7 +2,9 @@ package io.github.alexdikun.marketplace.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -100,9 +102,12 @@ public class CommentServiceTest {
         Long advertId = 999L;
         when(advertRepository.findById(advertId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> commentService.createComment(advertId, commentRequest))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessage("Объявление не найдено");
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            commentService.createComment(advertId, commentRequest);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Объявление не найдено");
+        verify(advertRepository).findById(advertId);   
     }
 
 
@@ -116,9 +121,13 @@ public class CommentServiceTest {
         when(advertRepository.findById(advertId)).thenReturn(Optional.of(advert));
         when(commentRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> commentService.createComment(advertId, commentRequest))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessage("Родительский комментарий не найден!");
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            commentService.createComment(advertId, commentRequest);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Родительский комментарий не найден!");
+        verify(advertRepository).findById(advertId);
+        verify(commentRepository).findById(999L);     
     }
 
     @Test
@@ -142,9 +151,12 @@ public class CommentServiceTest {
         Long commentId = 999L;
         when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> commentService.getComment(commentId))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessage("Комментарий не найден");
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            commentService.getComment(commentId);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Комментарий не найден");
+        verify(commentRepository).findById(commentId); 
     }
 
     @Test
@@ -207,9 +219,12 @@ public class CommentServiceTest {
 
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 
-        assertThatThrownBy(() -> commentService.updateComment(commentId, request))
-            .isInstanceOf(ConflictException.class)
-            .hasMessage("Комментарий не может быть родителем самого себя");
+        ConflictException exception = assertThrows(ConflictException.class, () -> {
+            commentService.updateComment(commentId, request);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Комментарий не может быть родителем самого себя");
+        verify(commentRepository).findById(commentId); 
     }
 
     @Test
@@ -222,6 +237,20 @@ public class CommentServiceTest {
         verify(commentRepository).findById(commentId);
         verify(commentRepository).delete(comment);
     }
+
+    @Test
+    void deleteCommentShouldThrowNotFound() {
+        Long commentId = 999L;
+        when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            commentService.getComment(commentId);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Комментарий не найден");
+        verify(commentRepository).findById(commentId); 
+    }
+
 
 }
 
