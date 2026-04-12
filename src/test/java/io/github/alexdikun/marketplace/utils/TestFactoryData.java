@@ -107,7 +107,7 @@ public class TestFactoryData {
     public static CategoryRequest createCategoryRequest(CategoryEntity parentCategory) {
         CategoryRequest categoryRequest = new CategoryRequest();
         categoryRequest.setName(faker.commerce().department());
-        categoryRequest.setParentId(parentCategory.getId());
+        if (parentCategory != null) categoryRequest.setParentId(parentCategory.getId());
         
         return categoryRequest;
     }
@@ -115,7 +115,7 @@ public class TestFactoryData {
     public static CommentRequest createCommentRequest(CommentEntity parentComment) {
         CommentRequest commentRequest = new CommentRequest();
         commentRequest.setContent(faker.lorem().sentence(3));
-        commentRequest.setParentId(parentComment.getId());
+        if (parentComment != null) commentRequest.setParentId(parentComment.getId());
 
         return commentRequest;
     }
