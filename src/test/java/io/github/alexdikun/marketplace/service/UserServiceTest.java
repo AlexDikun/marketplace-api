@@ -4,12 +4,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +22,7 @@ import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.mapper.UserMapper;
 import io.github.alexdikun.marketplace.repository.UserRepository;
 import io.github.alexdikun.marketplace.response.UserResponse;
+import io.github.alexdikun.marketplace.utils.TestFactoryData;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -37,38 +36,30 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private UserEntity userEntity;
+
+    @BeforeEach
+    void setUp() {
+        userEntity = TestFactoryData.createUser();
+    }
+
     @Test
     void getUserShouldReturnMappedResponseWhenUserExists() {
-        Long id = 6L;
-        String email = "test@.ru";
-        String displayName = "Glad Valakas";
-        Map<String, Object> messengerLinks = new HashMap<>();
-        messengerLinks.put("max", "max.ru/glad_valakas");
-        messengerLinks.put("vk", "vk.com/glad_valakas");
-        Instant date = Instant.now();
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(id);
-        userEntity.setEmail(email);
-        userEntity.setDisplayName(displayName);
-        userEntity.setMessengerLinks(messengerLinks);
-        userEntity.setCreatedAt(date);
-
         UserResponse expectedUserResponse = UserResponse
             .builder()
-            .email(email)
-            .displayName(displayName)
-            .messengerLinks(messengerLinks)
-            .createdAt(date)
+            .email(userEntity.getEmail())
+            .displayName(userEntity.getDisplayName())
+            .messengerLinks(userEntity.getMessengerLinks())
+            .createdAt(userEntity.getCreatedAt())
             .build();
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(userEntity));
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
         when(userMapper.toUserResponse(userEntity)).thenReturn(expectedUserResponse);
 
-        UserResponse actual = userService.getUser(id);
+        UserResponse actual = userService.getUser(userEntity.getId());
 
         assertThat(actual).isSameAs(expectedUserResponse);
-        verify(userRepository).findById(id);
+        verify(userRepository).findById(userEntity.getId());
         verify(userMapper).toUserResponse(userEntity);
     }
 
@@ -89,13 +80,15 @@ public class UserServiceTest {
     @Test
     void getAllUsersShouldReturnListOfUserResponses() {
         List<UserEntity> userEntities = List.of(
-            createUser("Джон Сноу", "john@email.com"),
-            createUser("Дейенерис Таргариен", "dany@email.com")
+            TestFactoryData.createUser(),
+            TestFactoryData.createUser()
         );
 
         List<UserResponse> expectedUserResponses = List.of(
-            UserResponse.builder().displayName("Джон Сноу").email("john@email.com").build(),
-            UserResponse.builder().displayName("Дейнерис Таргариен").email("dany@email.com").build()
+            UserResponse.builder().displayName(userEntities.get(0).getDisplayName())
+                .email(userEntities.get(0).getEmail()).build(),
+            UserResponse.builder().displayName(userEntities.get(1).getDisplayName())
+                .email(userEntities.get(1).getEmail()).build()
         );
 
         when(userRepository.findAll()).thenReturn(userEntities);
@@ -120,13 +113,6 @@ public class UserServiceTest {
         assertThat(actual).isEmpty();
         verify(userRepository).findAll();
         verify(userMapper).toListUserResponse(List.of());
-    }
-
-    private UserEntity createUser(String displayName, String email) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setEmail(email);
-        userEntity.setDisplayName(displayName);
-        return userEntity;
     }
 
 }
