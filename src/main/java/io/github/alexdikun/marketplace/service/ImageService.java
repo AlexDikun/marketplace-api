@@ -21,7 +21,7 @@ public class ImageService {
 
     private final AdvertRepository advertRepository;
     private final ImageRepository imageRepository;
-    private FileStorageService fileStorageService;
+    private final FileStorageService fileStorageService;
     private final ImageMapper imageMapper;
 
     @Transactional
