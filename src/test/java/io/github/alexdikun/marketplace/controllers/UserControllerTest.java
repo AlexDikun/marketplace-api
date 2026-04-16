@@ -99,7 +99,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser
     void updateUser_ShouldUpdateSuccessfully() throws Exception {
         String displayName = "JojoRef";  
 
