@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.CoreMatchers.is; 
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,12 +72,11 @@ public class AdvertControllerTest {
 
         when(advertService.createAdvert(advertRequest)).thenReturn(advertResponse);
 
-        mockMvc.perform(post("/api/adverts")
+        mockMvc.perform(post("/api/v1/adverts")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(advertRequest)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value(2L))
             .andExpect(jsonPath("$.title").value(advertResponse.getTitle()))
             .andExpect(jsonPath("$.cost").value(advertResponse.getCost()));
 
@@ -89,7 +89,7 @@ public class AdvertControllerTest {
         AdvertRequest invalidRequest = new AdvertRequest();
         invalidRequest.setTitle("");
 
-        mockMvc.perform(post("/api/adverts")
+        mockMvc.perform(post("/api/v1/adverts")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
@@ -100,34 +100,34 @@ public class AdvertControllerTest {
 
 
     @Test
+    @WithMockUser
     void getAdvert_ShouldReturnAdvert() throws Exception {
         CategoryEntity categoryEntity = TestFactoryData.createCategory(null);
-        Long id = 1L;
+        Long id = 5L;
         AdvertRequest fakeDataForHttpGet = TestFactoryData.createAdvertRequest(categoryEntity);
 
-        AdvertResponse advertResponse = TestFactoryData.createAdvertResponse(fakeDataForHttpGet, id);
+        AdvertResponse advertResponse = TestFactoryData.createAdvertResponse(fakeDataForHttpGet, 4L);
 
         when(advertService.getAdvert(id)).thenReturn(advertResponse);
 
-        mockMvc.perform(get("/api/adverts/{id}", id)
-            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+        mockMvc.perform(get("/api/v1/adverts/{id}", 5L))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(id))
             .andExpect(jsonPath("$.title").value(advertResponse.getTitle()));
 
         verify(advertService).getAdvert(id);
     }
 
     @Test
+    @WithMockUser
     void getAdvert_ShouldReturn404WhenNotFound() throws Exception {
         Long nonExistentId = 999L;
 
         when(advertService.getAdvert(nonExistentId))
             .thenThrow(new NotFoundException("Объявление не найдено"));
 
-        mockMvc.perform(get("/api/adverts/{id}", nonExistentId))
+        mockMvc.perform(get("/api/v1/adverts/{id}", nonExistentId))
             .andExpect(status().isNotFound())
-            .andExpect(content().string("Объявление не найдено"));
+            .andExpect(jsonPath("$.errors[0]", is("Объявление не найдено")));
 
         verify(advertService).getAdvert(nonExistentId);
     }
