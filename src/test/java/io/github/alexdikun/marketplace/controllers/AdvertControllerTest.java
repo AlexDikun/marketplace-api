@@ -84,7 +84,6 @@ public class AdvertControllerTest {
     }
 
     @Test
-    @WithMockUser
     void createAdvert_ShouldReturn400WhenValidationFails() throws Exception {
         AdvertRequest invalidRequest = new AdvertRequest();
         invalidRequest.setTitle("");
