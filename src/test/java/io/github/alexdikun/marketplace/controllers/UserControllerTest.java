@@ -64,9 +64,9 @@ class UserControllerTest {
         mockMvc.perform(get("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].email").value(1))
+            .andExpect(jsonPath("$[0].email").value("test1@mail.ru"))
             .andExpect(jsonPath("$[0].displayName").value("User1"))
-            .andExpect(jsonPath("$[1].email").value(2))
+            .andExpect(jsonPath("$[1].email").value("test2@mail.ru"))
             .andExpect(jsonPath("$[1].displayName").value("User2"));
 
         verify(userService, times(1)).getAllUsers();
