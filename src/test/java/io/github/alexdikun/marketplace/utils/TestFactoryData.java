@@ -1,8 +1,10 @@
 package io.github.alexdikun.marketplace.utils;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import io.github.alexdikun.marketplace.entities.AdvertEntity;
@@ -14,6 +16,7 @@ import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.request.CategoryRequest;
 import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.request.UserRequest;
+import io.github.alexdikun.marketplace.response.AdvertResponse;
 import net.datafaker.Faker;
 
 public class TestFactoryData {
@@ -130,6 +133,21 @@ public class TestFactoryData {
         userRequest.setMessengerLinks(messengerLinks);
 
         return userRequest;
+    }
+
+    public static AdvertResponse createAdvertResponse(AdvertRequest advertRequest, Long userId) {
+        AdvertResponse.AdvertResponseBuilder builder = AdvertResponse.builder();
+
+        builder
+            .title(Optional.ofNullable(advertRequest.getTitle()).orElse(null))
+            .cost(Optional.ofNullable(advertRequest.getCost()).orElse(null))
+            .address(Optional.ofNullable(advertRequest.getAddress()).orElse(null))
+            .phone(Optional.ofNullable(advertRequest.getPhone()).orElse(null))
+            .description(Optional.ofNullable(advertRequest.getDescription()).orElse(null))
+            .userId(userId)
+            .categoryId(advertRequest.getCategoryId());
+
+        return builder.build();
     }
 
 }
