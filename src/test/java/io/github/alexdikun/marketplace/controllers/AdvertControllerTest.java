@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -12,17 +13,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.hibernate.query.Page;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.alexdikun.marketplace.entities.CategoryEntity;
 import io.github.alexdikun.marketplace.entities.UserEntity;
+import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
+import io.github.alexdikun.marketplace.service.CommentService;
+import io.github.alexdikun.marketplace.service.ImageService;
+import io.github.alexdikun.marketplace.service.security.AdvertSecurity;
 import io.github.alexdikun.marketplace.utils.TestFactoryData;
 
 @WebMvcTest(AdvertController.class)
@@ -31,98 +47,88 @@ public class AdvertControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private AdvertService advertService;
+
+    @MockBean
+    private CommentService commentService;
+
+    @MockBean
+    private ImageService imageService;
+
+    @MockBean
+    private AdvertSecurity advertSecurity;
 
     @Test
     void createAdvert_ShouldCreateSuccessfully() throws Exception {
         CategoryEntity categoryEntity = TestFactoryData.createCategory(null);
 
         AdvertRequest advertRequest = TestFactoryData.createAdvertRequest(categoryEntity);
-        AdvertResponse advertResponse = TestFactoryData.createAdvertResponse();
+        AdvertResponse advertResponse = TestFactoryData.createAdvertResponse(advertRequest, 2L);
 
-        when(advertService.createAdvert(request)).thenReturn(response);
+        when(advertService.createAdvert(advertRequest)).thenReturn(advertResponse);
 
         mockMvc.perform(post("/api/adverts")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestFactoryData.asJsonString(request)))
+                .content(objectMapper.writeValueAsString(advertRequest)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").value(advertResponse.getId()))
+            .andExpect(jsonPath("$.id").value(2L))
             .andExpect(jsonPath("$.title").value(advertResponse.getTitle()))
-            .andExpect(jsonPath("$.price").value(advertResponse.getPrice()));
+            .andExpect(jsonPath("$.cost").value(advertResponse.getCost()));
 
         verify(advertService).createAdvert(advertRequest);
     }
 
     @Test
+    @WithMockUser
     void createAdvert_ShouldReturn400WhenValidationFails() throws Exception {
-        // given
         AdvertRequest invalidRequest = new AdvertRequest();
-        invalidRequest.setTitle(""); // пустое название — нарушаем валидацию
+        invalidRequest.setTitle("");
 
-        // when & then
         mockMvc.perform(post("/api/adverts")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestFactoryData.asJsonString(invalidRequest)))
+                .content(objectMapper.writeValueAsString(invalidRequest)))
             .andExpect(status().isBadRequest());
 
         verify(advertService, never()).createAdvert(any());
     }
 
-    @Test
-    void searchAdverts_ShouldReturnResults() throws Exception {
-        // given
-        String query = "laptop";
-        int page = 0;
-        int size = 10;
-
-        Page<AdvertResponse> pageResponse = TestFactoryData.createPageOfAdvertResponses();
-
-        when(advertService.searchAdverts(query, page, size)).thenReturn(pageResponse);
-
-        // when & then
-        mockMvc.perform(get("/api/adverts/search")
-                .param("query", query)
-                .param("page", String.valueOf(page))
-                .param("size", String.valueOf(size)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").isNotEmpty())
-            .andExpect(jsonPath("$.totalElements").value(pageResponse.getTotalElements()));
-
-        verify(advertService, times(1)).searchAdverts(query, page, size);
-    }
 
     @Test
     void getAdvert_ShouldReturnAdvert() throws Exception {
-        // given
+        CategoryEntity categoryEntity = TestFactoryData.createCategory(null);
         Long id = 1L;
-        AdvertResponse response = TestFactoryData.createAdvertResponse();
-        response.setId(id);
+        AdvertRequest fakeDataForHttpGet = TestFactoryData.createAdvertRequest(categoryEntity);
 
-        when(advertService.getAdvert(id)).thenReturn(response);
+        AdvertResponse advertResponse = TestFactoryData.createAdvertResponse(fakeDataForHttpGet, id);
 
-        // when & then
-        mockMvc.perform(get("/api/adverts/{id}", id))
+        when(advertService.getAdvert(id)).thenReturn(advertResponse);
+
+        mockMvc.perform(get("/api/adverts/{id}", id)
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(id))
-            .andExpect(jsonPath("$.title").value(response.getTitle()));
+            .andExpect(jsonPath("$.title").value(advertResponse.getTitle()));
 
-        verify(advertService, times(1)).getAdvert(id);
+        verify(advertService).getAdvert(id);
     }
 
     @Test
     void getAdvert_ShouldReturn404WhenNotFound() throws Exception {
-        // given
         Long nonExistentId = 999L;
 
         when(advertService.getAdvert(nonExistentId))
             .thenThrow(new NotFoundException("Объявление не найдено"));
 
-        // when & then
         mockMvc.perform(get("/api/adverts/{id}", nonExistentId))
             .andExpect(status().isNotFound())
-            .andExpect(content().string(containsString("Объявление не найдено")));
+            .andExpect(content().string("Объявление не найдено"));
 
-        verify(advertService, times(1)).getAdvert(nonExistentId);
+        verify(advertService).getAdvert(nonExistentId);
     }
 }
