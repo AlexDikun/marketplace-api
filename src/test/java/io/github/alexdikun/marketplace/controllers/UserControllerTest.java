@@ -1,6 +1,7 @@
 package io.github.alexdikun.marketplace.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,33 +12,36 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import io.github.alexdikun.marketplace.entities.UserEntity;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.github.alexdikun.marketplace.request.UserRequest;
 import io.github.alexdikun.marketplace.response.UserResponse;
 import io.github.alexdikun.marketplace.service.CurrentUserService;
 import io.github.alexdikun.marketplace.service.UserService;
-import io.github.alexdikun.marketplace.utils.TestFactoryData;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private CurrentUserService currentUserService;
@@ -108,34 +112,31 @@ class UserControllerTest {
         userRequest.setMessengerLinks(messengerLinks);
 
         UserResponse updatedUser = UserResponse.builder()
-                                .displayName("User1")
+                                .displayName("JojoRef")
                                 .messengerLinks(messengerLinks)
                                 .build();
 
         when(currentUserService.updateUser(any(UserRequest.class))).thenReturn(updatedUser);
 
         mockMvc.perform(put("/api/v1/users/me")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\": \"Updated Name\", \"email\": \"updated@email.com\"}"))
+                .content(objectMapper.writeValueAsString(userRequest))) 
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1))
-            .andExpect(jsonPath("$.name").value("Updated Name"))
-            .andExpect(jsonPath("$.email").value("updated@email.com"));
+            .andExpect(jsonPath("$.displayName").value(displayName))
+            .andExpect(jsonPath("$.messengerLinks").value(messengerLinks));
 
         verify(currentUserService).updateUser(any(UserRequest.class));
     }
 
     @Test
-    @WithMockUser
     void deleteUser_ShouldDeleteSuccessfully() throws Exception {
-
-        UserEntity testUser = TestFactoryData.createUser();
-
-        when(currentUserService.getCurrentUser()).thenReturn(testUser);
+        doNothing().when(currentUserService).deleteUser();
 
         mockMvc.perform(delete("/api/v1/users/me")
-            .with(user("testuser@example.com").roles("USER"))) // не работает
-            .andExpect(status().isNoContent());
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
+        )
+        .andExpect(status().isNoContent());
 
         verify(currentUserService).deleteUser();
     }
