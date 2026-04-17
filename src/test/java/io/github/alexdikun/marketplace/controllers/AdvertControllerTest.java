@@ -2,7 +2,6 @@ package io.github.alexdikun.marketplace.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -99,7 +98,6 @@ public class AdvertControllerTest {
 
 
     @Test
-    @WithMockUser
     void getAdvert_ShouldReturnAdvert() throws Exception {
         CategoryEntity categoryEntity = TestFactoryData.createCategory(null);
         Long id = 5L;
@@ -109,7 +107,8 @@ public class AdvertControllerTest {
 
         when(advertService.getAdvert(id)).thenReturn(advertResponse);
 
-        mockMvc.perform(get("/api/v1/adverts/{id}", 5L))
+        mockMvc.perform(get("/api/v1/adverts/{id}", 5L)
+            .with(jwt())) 
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.title").value(advertResponse.getTitle()));
 
@@ -117,14 +116,14 @@ public class AdvertControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getAdvert_ShouldReturn404WhenNotFound() throws Exception {
         Long nonExistentId = 999L;
 
         when(advertService.getAdvert(nonExistentId))
             .thenThrow(new NotFoundException("Объявление не найдено"));
 
-        mockMvc.perform(get("/api/v1/adverts/{id}", nonExistentId))
+        mockMvc.perform(get("/api/v1/adverts/{id}", nonExistentId)
+            .with(jwt())) 
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.errors[0]", is("Объявление не найдено")));
 

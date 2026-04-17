@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,7 +51,6 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    @WithMockUser
     void getAllUsers_ShouldReturnUsersList() throws Exception {
         UserResponse user1 = UserResponse.builder()
                                 .displayName("User1")
@@ -66,6 +66,7 @@ class UserControllerTest {
         when(userService.getAllUsers()).thenReturn(users);
 
         mockMvc.perform(get("/api/v1/users")
+                .with(jwt()) 
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].email").value("test1@mail.ru"))
@@ -73,11 +74,10 @@ class UserControllerTest {
             .andExpect(jsonPath("$[1].email").value("test2@mail.ru"))
             .andExpect(jsonPath("$[1].displayName").value("User2"));
 
-        verify(userService, times(1)).getAllUsers();
+        verify(userService).getAllUsers();
     }
 
     @Test
-    @WithMockUser
     void getUser_ShouldReturnUser() throws Exception {
         Long userId = 1L;
         String email = "bigTasty@mail.ru";
@@ -90,6 +90,7 @@ class UserControllerTest {
         when(userService.getUser(userId)).thenReturn(userResponse);
 
         mockMvc.perform(get("/api/v1/users/{id}", userId)
+                .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value(email))
