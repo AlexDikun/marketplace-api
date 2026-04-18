@@ -107,7 +107,7 @@ public class LocalFileStorageServiceTest {
             localFileStorageService.saveFile(textFile);
         });
 
-        assertThat(exception.getMessage()).isEqualTo("МОжно загружать только изображения");
+        assertThat(exception.getMessage()).isEqualTo("Можно загружать только изображения");
     }
 
 

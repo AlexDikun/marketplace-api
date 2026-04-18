@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 import java.awt.image.BufferedImage;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.github.alexdikun.marketplace.config.StorageProperties;
+import io.github.alexdikun.marketplace.exceptions.BadRequestException;
 
 @Service
 public class LocalFileStorageService implements FileStorageService {
@@ -37,12 +39,15 @@ public class LocalFileStorageService implements FileStorageService {
 
         try {
             validateFile(file);
-            String filename = file.getOriginalFilename() + "_" +  UUID.randomUUID();
+            String original = Optional.ofNullable(file.getOriginalFilename())
+                .orElse("file");
+
+            String filename = UUID.randomUUID() + "_" + original;
             Path targetLocation = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), targetLocation);
             return filename;
         } catch (IOException exception) {
-            throw new RuntimeException("Ошибка сохранения файла", exception);
+            throw new RuntimeException("Ошибка сохранения файла", exception); // проблема сервера?
         }
     }
 
@@ -52,20 +57,20 @@ public class LocalFileStorageService implements FileStorageService {
             Path filePath = uploadPath.resolve(filename).normalize();
             Files.deleteIfExists(filePath);
         } catch (IOException exception) {
-            throw new RuntimeException("Ошибка удаления файла", exception);
+            throw new RuntimeException("Ошибка удаления файла", exception); // проблема сервера?
         }
     }
 
     private void validateFile(MultipartFile file) throws IOException {
         if (file.isEmpty())
-            throw new RuntimeException("Файл пустой");
+            throw new BadRequestException("Файл пустой");
         if (file.getContentType() == null || !file.getContentType().startsWith("image/")) 
-            throw new RuntimeException("МОжно загружать только изображения");
+            throw new BadRequestException("Можно загружать только изображения");
 
         BufferedImage image = ImageIO.read(file.getInputStream());
 
         if (image == null)
-            throw new RuntimeException("Файл не является изображением");
+            throw new BadRequestException("Файл не является изображением");
 
     }
     
