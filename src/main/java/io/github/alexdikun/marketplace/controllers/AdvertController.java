@@ -141,7 +141,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "404", description = "Никакие комментарии не найдены"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Page<CommentResponse>> getAllCategories(
+    public ResponseEntity<Page<CommentResponse>> getAllComments(
         @PathVariable @Positive Long id, 
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
