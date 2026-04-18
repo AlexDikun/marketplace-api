@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.CoreMatchers.is; 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,6 +41,7 @@ import io.github.alexdikun.marketplace.request.AdvertRequest;
 import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
 import io.github.alexdikun.marketplace.response.CommentResponse;
+import io.github.alexdikun.marketplace.response.ImageResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
 import io.github.alexdikun.marketplace.service.ImageService;
@@ -305,6 +308,68 @@ public class AdvertControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void uploadImageOnAdvert_ShouldReturn200WhenSuccess() throws Exception {
+        Long advertId = 1L;
+
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "test.jpg",
+            "image/jpeg",
+            "file content".getBytes()
+        );
+
+        ImageResponse expectedImageResponse = ImageResponse.builder()
+            .id(1L)
+            .url("/images/test.jpg")
+            .build();
+
+        when(imageService.uploadImage(advertId, file))
+            .thenReturn(expectedImageResponse);
+
+        mockMvc.perform(multipart("/api/v1/adverts/{id}/images", advertId)
+                .file(file)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.url").exists());
+    }
+
+    @Test
+    void uploadImageOnAdvert_ShouldReturn400WhenInvalidFile() throws Exception {
+        Long advertId = 1L;
+
+        MockMultipartFile invalidFile = new MockMultipartFile(
+            "file",
+            "test.txt",
+            "text/plain",
+            "invalid content".getBytes()
+        );
+
+        doThrow(new IllegalArgumentException("Invalid file type"))
+            .when(imageService).uploadImage(advertId, invalidFile);
+
+        mockMvc.perform(multipart("/api/v1/adverts/{id}/images", advertId)
+                .file(invalidFile)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void uploadImageOnAdvert_SHpuldReturn403WhenAuthorizationError() throws Exception {
+        Long advertId = 1L;
+
+        MockMultipartFile file = new MockMultipartFile(
+            "file",
+            "test.jpg",
+            "image/jpeg",
+            "file content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/v1/adverts/{id}/images", advertId)
+                .file(file))
+            .andExpect(status().isForbidden()); 
     }
 
 }
