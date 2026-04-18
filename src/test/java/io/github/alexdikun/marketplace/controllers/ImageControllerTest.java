@@ -138,7 +138,6 @@ public class ImageControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     void deleteImage_ShouldReturn403WhenAuthorizeError() throws Exception {
         mockMvc.perform(delete("/api/v1/image/{id}", 1L))
             .andExpect(status().isForbidden());
