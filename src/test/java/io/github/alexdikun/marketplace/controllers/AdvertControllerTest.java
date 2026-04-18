@@ -347,7 +347,7 @@ public class AdvertControllerTest {
             "invalid content".getBytes()
         );
 
-        doThrow(new IllegalArgumentException("Invalid file type"))
+        doThrow(new BadRequestException("Invalid file type"))
             .when(imageService).uploadImage(advertId, invalidFile);
 
         mockMvc.perform(multipart("/api/v1/adverts/{id}/images", advertId)
