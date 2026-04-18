@@ -2,6 +2,7 @@ package io.github.alexdikun.marketplace.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -190,16 +191,20 @@ public class LocalFileStorageServiceTest {
         Files.delete(newTempDir);
     }
 
-
     @Test
     void constructorShouldThrowWhenCannotCreateDirectory() {
         StorageProperties badProps = new StorageProperties();
         badProps.setUploadDir("/invalid/path/that/does/not/exist");
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            new LocalFileStorageService(badProps);
-        });
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.createDirectories(any(Path.class)))
+                    .thenThrow(new IOException("disk error"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                new LocalFileStorageService(badProps);
+            });
 
         assertThat(exception.getMessage()).isEqualTo("Не удалось создать папку загрузки");
+        }
     }
 }
