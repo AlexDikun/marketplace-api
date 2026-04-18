@@ -1,5 +1,6 @@
 plugins {
 	id 'java'
+	id 'jacoco'
 	id 'org.springframework.boot' version '3.5.11'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -22,6 +23,61 @@ configurations {
 
 repositories {
 	mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = false
+    }
+}
+
+tasks.register("printCoverage") {
+    dependsOn test, jacocoTestReport
+
+    doLast {
+        def reportFile = file("$buildDir/reports/jacoco/test/jacocoTestReport.xml")
+
+        def text = reportFile.text
+
+        def matcher = text =~ /<counter type="INSTRUCTION" missed="(\d+)" covered="(\d+)"/
+
+        def lastMatch = null
+        matcher.each { lastMatch = it } 
+
+        if (lastMatch != null) {
+            def missed = lastMatch[1].toBigDecimal()
+            def covered = lastMatch[2].toBigDecimal()
+
+            def total = missed + covered
+            def coverage = (covered / total * 100).setScale(2, BigDecimal.ROUND_HALF_UP)
+
+            println "====================================="
+            println "CODE COVERAGE: ${coverage}%"
+            println "====================================="
+        } else {
+            println "Coverage data not found"
+        }
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.6 
+            }
+        }
+    }
 }
 
 dependencies {
