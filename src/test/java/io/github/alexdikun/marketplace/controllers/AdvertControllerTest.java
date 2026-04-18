@@ -36,7 +36,9 @@ import io.github.alexdikun.marketplace.entities.CategoryEntity;
 import io.github.alexdikun.marketplace.exceptions.BadRequestException;
 import io.github.alexdikun.marketplace.exceptions.NotFoundException;
 import io.github.alexdikun.marketplace.request.AdvertRequest;
+import io.github.alexdikun.marketplace.request.CommentRequest;
 import io.github.alexdikun.marketplace.response.AdvertResponse;
+import io.github.alexdikun.marketplace.response.CommentResponse;
 import io.github.alexdikun.marketplace.service.AdvertService;
 import io.github.alexdikun.marketplace.service.CommentService;
 import io.github.alexdikun.marketplace.service.ImageService;
@@ -268,6 +270,41 @@ public class AdvertControllerTest {
             .andExpect(status().isForbidden());
 
         verify(advertService, never()).updateAdvert(any(), any());
+    }
+
+    @Test
+    void leaveCommentOnAdvert_ShouldReturn201WhenSuccess() throws Exception {
+        Long advertId = 1L;
+        CommentRequest commentRequest = TestFactoryData.createCommentRequest(null);
+
+        CommentResponse expectedCommentResponse = CommentResponse.builder()
+            .content(commentRequest.getContent())
+            .id(advertId)
+            .build();
+
+        when(commentService.createComment(advertId, commentRequest))
+            .thenReturn(expectedCommentResponse);
+
+        mockMvc.perform(post("/api/v1/adverts/{id}/comments", advertId)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(commentRequest)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").exists())
+            .andExpect(jsonPath("$.content").value(expectedCommentResponse.getContent()));
+    }
+
+    @Test
+    void leaveCommentOnAdvert_ShouldReturn400WhenValidationError() throws Exception {
+        Long advertId = 1L;
+        CommentRequest invalidRequest = new CommentRequest();
+        invalidRequest.setContent(""); 
+
+        mockMvc.perform(post("/api/v1/adverts/{id}/comments", advertId)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+            .andExpect(status().isBadRequest());
     }
 
 }
