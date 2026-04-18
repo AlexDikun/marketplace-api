@@ -33,6 +33,10 @@ test {
     useJUnitPlatform()
 }
 
+bootJar {
+    archiveFileName = "app.jar"
+}
+
 jacocoTestReport {
     reports {
         html.required = true
