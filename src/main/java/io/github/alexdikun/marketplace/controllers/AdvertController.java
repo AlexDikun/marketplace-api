@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
@@ -101,7 +102,7 @@ public class AdvertController {
     })
     public ResponseEntity<AdvertResponse> updateAdvert(
         @PathVariable @Positive Long id, 
-        @RequestBody AdvertRequest advertRequest
+        @RequestBody @Valid AdvertRequest advertRequest
     ) {
         return new ResponseEntity<>(advertService.updateAdvert(id, advertRequest), HttpStatus.OK);
     }
@@ -128,7 +129,7 @@ public class AdvertController {
     })
     public ResponseEntity<CommentResponse> leaveCommentOnAdvert(
         @PathVariable @Positive Long id, 
-        @Parameter(description = "Модель для создания данных") @Validated(OnCreate.class) @RequestBody CommentRequest commentRequest
+        @Parameter(description = "Модель для создания данных") @Valid @RequestBody CommentRequest commentRequest
     ) {
         return new ResponseEntity<>(commentService.createComment(id, commentRequest), HttpStatus.CREATED);
     }
@@ -140,7 +141,7 @@ public class AdvertController {
         @ApiResponse(responseCode = "404", description = "Никакие комментарии не найдены"),
         @ApiResponse(responseCode = "500", description = "Ошибка работы сервиса")
     })
-    public ResponseEntity<Page<CommentResponse>> getAllCategories(
+    public ResponseEntity<Page<CommentResponse>> getAllComments(
         @PathVariable @Positive Long id, 
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
