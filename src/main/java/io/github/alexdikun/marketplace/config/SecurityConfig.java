@@ -25,11 +25,14 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/adverts/search").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/adverts/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/adverts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/categories/*").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/images/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/comment/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/image/**").permitAll()
 
+                .requestMatchers(HttpMethod.GET, "/api/v1/users").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*").authenticated()
                 .requestMatchers("/api/v1/users/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/roles").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/auth").authenticated()
